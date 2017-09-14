@@ -1,0 +1,48 @@
+---
+directed: false
+graph: {}
+nodes:
+- type: router
+  id: router2
+  def_list: no
+  def_conn: no
+  listener:
+    - host: 1.1.1.1
+      port: 666
+      sslprofile: franta
+  connector:
+    - host: router2
+      port: 111
+    - host: router1
+      port: 555
+  linkRoute:
+    - prefix: anycast
+      connection: router3
+      dir: in
+    - prefix: anycast
+      connection: router3
+      dir: out
+- type: router
+  id: router1
+  mode: inter-router
+  group: group2
+- type: broker
+  id: broker2
+- type: broker
+  id: broker3
+- type: broker
+  id: broker1
+links:
+- source: 0
+  target: 1
+  value: 10
+- source: 0
+  target: 2
+  value: 5
+- source: 0
+  target: 3
+  value: 6
+- source: 1
+  target: 4
+  value: 7
+multigraph: false

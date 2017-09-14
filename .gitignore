@@ -3,12 +3,12 @@ generated/
 *.retry
 *.pyc
 .idea
-config.yml
-inventory
 pyenv2
 build
 dist
-*.yaml
-*.yml
+test*.yaml
+test*.yml
 *.png
 *.jpg
+*.pdf
+*.svg
