@@ -9,6 +9,7 @@ import yaml
 
 class Config:
     def __init__(self):
+        self.graph_file = '~/ref_graph_file.yml'
         self.path_inventory = '~/inventory'
         self.machines = 2
         self.routers = 1
@@ -17,30 +18,28 @@ class Config:
         self.broker_names = []
 
 
-    def parse_args(self):
+    def args_parse(self):
         # parse arguments
         parser = argparse.ArgumentParser(description='Qpid-dispatch facts generator.')
         required = parser.add_argument_group('required arguments')
         required.add_argument('-c', '--config-file', action="store", dest="config_file", help='Path to config file',
                               required=True)
-
         results = parser.parse_args()
 
         with open(results.config_file, 'r') as stream:
             try:
                 config = yaml.load(stream)
                 self.path_inventory = config['hostfile']
+                self.graph_file = config['graph_type']
             except yaml.YAMLError as exc:
                 print(exc)
 
-    def parse_inventory(self):
         group = 'none'
         with open(self.path_inventory, 'r') as f:
             try:
                 read_data = f.read()
             except IOError as exc:
                 print(exc)
-
         f.closed
 
         for line in read_data.splitlines():
@@ -51,7 +50,7 @@ class Config:
             elif re.match('^\s*$', line):
                 group = 'none'
 
-            val = re.match('(\S+) .*', line)
+            val = re.match('^((?!\[)\S*)\s*$', line)
 
             if group is 'routers' and val:
                 self.router_names.append(val.group(1))

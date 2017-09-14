@@ -8,3 +8,7 @@ inventory
 pyenv2
 build
 dist
+*.yaml
+*.yml
+*.png
+*.jpg
