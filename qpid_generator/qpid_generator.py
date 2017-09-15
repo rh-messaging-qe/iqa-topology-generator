@@ -17,30 +17,30 @@ graph_type = 'complete_graph'
 args = [config.routers]
 machines = config.machines
 
+print "Router: " + str(config.router_names)
+print "Broker: " + str(config.broker_names)
+print config.routers
+print config.brokers
+print config.machines
 
-graph = load_graph_from_json(config.graph_file)
-
-load_graph_from_json(config.graph_file)
-# export_graph(graph)
-
-machines = ["machine%s" % m for m in range(machines)]
-
-# @TODO - generate topology without graph_file
-# confs = get_conf(graph, machines, round_robin)
-
+if config.graph_file:
+    graph = load_graph_from_json(config.graph_file)
+else:
+    graph = load_graph_from_json()
 
 confs = get_conf(graph)
+
 
 def main():
     # output
     params = "-".join([str(x) for x in args])
-    basename = "%s_%s_on_%s" % (graph_type, params, len(machines))
+    basename = "%s_%s_on_%s" % (graph_type, params, config.machines)
     directory = os.path.join(GEN_PATH, basename)
     if not os.path.isdir(directory):
         os.makedirs(directory)
     filename = os.path.join(directory, "confs.json")
+    # Export graph
+    export_graph(graph, os.path.join(directory, "topology.svg"))
+    # Export variables
     with open(filename, 'w') as f:
         f.write(json.dumps({'confs': confs.values()}))
-
-    print 'FINAL CONFS:'
-    print json.dumps({'confs': confs.values()}, sort_keys=True, indent=2)

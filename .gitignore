@@ -12,3 +12,4 @@ test*.yml
 *.jpg
 *.pdf
 *.svg
+qpid_generator.egg-info

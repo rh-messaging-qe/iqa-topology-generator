@@ -3,11 +3,19 @@
 
 import networkx as nx
 
+# Default port-value for  listeners/connectors
 DEFAULT_PORT = 5672
+# Default queue name for linkRoutes
 DEFAULT_QUEUE = 'default_queue'
 
 
 def get_conf(graph):
+    """
+    Function for start generating config variables for routers.
+    :param graph: networkx graph of topology
+    :return: config variables in json
+    """
+
     confs = {}
     node_type = nx.get_node_attributes(graph, 'type')
 
@@ -31,6 +39,13 @@ def get_conf(graph):
 
 
 def generate_listeners(graph, node):
+    """
+    Function for generate information about listeners.
+    Generate default or self-defined values.
+    :param graph: networkx graph of topology
+    :param node: current processing node
+    :return: listeners variables in json
+    """
     list_vars = nx.get_node_attributes(graph, 'listener')
 
     listeners = []
@@ -58,16 +73,23 @@ def generate_listeners(graph, node):
     return listeners
 
 
-'''
+def generate_connectors(graph, node, nbrdict, node_type):
+    """
+    Function for generate connectors.
     Connector for router is specified in graph_file: create it
     Connector for router is not specified in graph_file: create default connector with specific role 'inter-router'
     Connector for broker is specified in graph_file: check connector 'host' and linkRoute 'connection'
-        if:     connector without linkRoute isn't created
-        elif:   linkRoute without connector aren't created
-        else:   create both
+            if:     connector without linkRoute isn't created
+            elif:   linkRoute without connector aren't created
+            else:   create both
     Connector for broker is not specified: create default connector and linkRoutes with default queue
-'''
-def generate_connectors(graph, node, nbrdict, node_type):
+    :param graph: networkx graph of topology
+    :param node: current processing node
+    :param nbrdict: dict of outgoing edges from processing node
+    :param node_type: type of all nodes
+    :return: connectors and linkRoutes variables in json
+    """
+
     conn_vars = nx.get_node_attributes(graph, 'connector')
     link_vars = nx.get_node_attributes(graph, 'linkRoute')
     connectors = []
@@ -112,8 +134,15 @@ def generate_connectors(graph, node, nbrdict, node_type):
 
 
 def generate_router_info(graph, node):
+    """
+    Function for generate information about router itself.
+    :param graph: networkx graph of topology
+    :param node: current processing node
+    :return: router variables in json
+    """
+
     rout_vars = nx.get_node_attributes(graph, 'router')
-    # TODO - problem ve vasrs pro ansible (jedna masina, jeden router - vymyslet a vyzkouset moznosti pro vice routru na masine)
+    # TODO - problem ve vasrs pro ansible (jedna masina, jeden router - vymyslet a vyzkouset moznosti pro vice routru na masine) a upravit dle toho generovani
     mode = rout_vars[node] if node in rout_vars else 'standalone'
 
     router_info = {
