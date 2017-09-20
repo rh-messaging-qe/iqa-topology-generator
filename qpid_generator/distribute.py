@@ -9,7 +9,7 @@ def round_robin(graph, machines):
     nodes_to_machines = {}
     machines_to_nodes = {}
     i = 0
-    for node in graph.nodes():
+    for node in graph.nodes():          # loop over nodes
         nodes_to_machines.update({node: machines[i]})
         machines_to_nodes.setdefault(machines[i], [])
         machines_to_nodes[machines[i]].append(node)

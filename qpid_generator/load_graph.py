@@ -1,8 +1,6 @@
-import json
-
+import matplotlib.pyplot as plt
 import networkx as nx
 import yaml
-import matplotlib.pyplot as plt
 from networkx.readwrite import json_graph
 
 

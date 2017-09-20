@@ -14,6 +14,10 @@ group2
 [brokers]
 broker1
 broker2
+broker3
+broker4
+broker5
+broker6
 
 
 [clients]

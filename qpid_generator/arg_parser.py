@@ -8,6 +8,7 @@ import yaml
 from ansible.inventory import Inventory
 from ansible.parsing.dataloader import DataLoader
 from ansible.vars import VariableManager
+import sys
 
 
 class Config:
@@ -22,7 +23,8 @@ class Config:
 
     def __init__(self):
         self.graph_file = ''
-        self.path_inventory = '~/inventory'
+        self.graph_type = ''
+        self.path_inventory = ''
         self.machines = 2
         self.routers = 1
         self.brokers = 1
@@ -50,17 +52,16 @@ class Config:
                 config = yaml.load(stream)
                 if 'hostfile' in config:    # @TODO - create error function for unset inventory path
                     self.path_inventory = config['hostfile']
-                if 'graph_type' in config:
-                    self.graph_file = config['graph_type']
+                else:
+                    self.path_inventory = raw_input("Enter path to inventory: ");
+                if 'graph_file' in config:
+                    self.graph_file = config['graph_file']
+                elif 'graph_type' in config:
+                    self.graph_type = config['graph_type']
+                else:
+                    self.graph_type = raw_input("Enter graph type for generator: ");
             except yaml.YAMLError as exc:
                 print(exc)
-
-        with open(self.path_inventory, 'r') as f:
-            try:
-                read_data = f.read()
-            except IOError as exc:
-                print(exc)
-        f.closed
 
         self.parse_inventory(self.path_inventory)
 

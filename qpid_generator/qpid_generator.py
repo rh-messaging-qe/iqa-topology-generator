@@ -6,6 +6,7 @@ import os
 from arg_parser import Config
 from load_graph import export_graph, load_graph_from_json
 from generate import get_conf
+from create_graph import Topology
 
 GEN_PATH = 'generated'
 
@@ -26,7 +27,9 @@ print config.machines
 if config.graph_file:
     graph = load_graph_from_json(config.graph_file)
 else:
-    graph = load_graph_from_json()
+    # graph = load_graph_from_json()
+    topology = Topology()
+    graph = topology.create_graph(config.router_names, config.broker_names, config.graph_type)
 
 confs = get_conf(graph)
 
