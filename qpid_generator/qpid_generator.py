@@ -4,9 +4,8 @@ import json
 import os
 
 from arg_parser import Config
-from load_graph import export_graph, load_graph_from_json
 from generate import get_conf
-from create_graph import Topology
+from topology import Topology
 
 GEN_PATH = 'generated'
 
@@ -20,18 +19,16 @@ machines = config.machines
 
 print "Router: " + str(config.router_names)
 print "Broker: " + str(config.broker_names)
-print config.routers
-print config.brokers
-print config.machines
+
+# New instance of topology
+topology = Topology()
 
 if config.graph_file:
-    graph = load_graph_from_json(config.graph_file)
+    topology.load_graph_from_json(config.graph_file)
 else:
-    # graph = load_graph_from_json()
-    topology = Topology()
-    graph = topology.create_graph(config.router_names, config.broker_names, config.graph_type)
+    topology.create_graph(config.router_names, config.broker_names, config.graph_type)
 
-confs = get_conf(graph)
+confs = get_conf(topology.graph)
 
 
 def main():
@@ -43,7 +40,7 @@ def main():
         os.makedirs(directory)
     filename = os.path.join(directory, "confs.json")
     # Export graph
-    export_graph(graph, os.path.join(directory, "topology.svg"))
+    topology.export_graph(os.path.join(directory, "topology.svg"))
     # Export variables
     with open(filename, 'w') as f:
         f.write(json.dumps({'confs': confs.values()}))

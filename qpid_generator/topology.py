@@ -1,16 +1,63 @@
 import itertools
 import networkx as nx
+import yaml
 import matplotlib.pyplot as plt
-from random import shuffle
 
-from load_graph import export_graph
+from networkx.readwrite import json_graph
 
 
-class Topology:
+class Topology():
+    """
+
+    """
     DEFAULT_COST = 1
 
     def __init__(self):
-        pass
+        self.graph = None
+
+    def load_graph_from_json(self, filename):
+        """
+        Function for load graph data from file.
+        :param filename: path to file with graph data
+        :return: networkx graph
+        """
+
+        with open(filename, 'r') as stream:
+            try:
+                graph_json = yaml.load(stream)
+            except yaml.YAMLError as exc:
+                print(exc)
+
+        self.graph = json_graph.node_link_graph(graph_json)
+
+    def export_graph(self, path):
+        """
+        Function for export networkx graph into svg file.
+        :param path:
+        :param graph: networkx graph
+        """
+
+        color_map = []
+        for n in self.graph.nodes():
+            if self.graph.node[n]['type'] == 'router':
+                color_map.append('yellow')
+            else:
+                color_map.append('#BBF94B')
+
+        pos = nx.spring_layout(self.graph)
+
+        plt.figure(1, figsize=(14, 14))
+        # nodes
+        nx.draw_networkx(self.graph, pos=pos, node_size=2500, node_color=color_map, font_size=12)
+        # edges
+        nx.draw_networkx_edges(self.graph, pos=pos, edge_color='black')
+        edge_labels = nx.get_edge_attributes(self.graph, 'value')
+        nx.draw_networkx_edge_labels(self.graph, pos, edge_labels, font_size=14)
+
+        plt.axis('off')
+        # plt.title('Topology')
+        plt.savefig(path, format='svg')
+        # plt.show()  # TODO remove show, it's just for debug
 
     def create_graph(self, routers, brokers, graph_type):
         """
@@ -21,16 +68,12 @@ class Topology:
         :return:
         """
         print "Graph_type: " + str(graph_type)
-        graph = nx.Graph()
+        self.graph = nx.Graph()
 
-        graph.add_nodes_from(routers, type='router')
-        graph.add_nodes_from(brokers, type='broker')
+        self.graph.add_nodes_from(routers, type='router')
+        self.graph.add_nodes_from(brokers, type='broker')
 
-        graph = getattr(self, graph_type)(graph, routers, brokers)
-
-        # export_graph(graph, "topology.svg")
-
-        return graph
+        getattr(self, graph_type)(self.graph, routers, brokers)
 
     def complete_graph(self, graph, *_):
         """
@@ -143,16 +186,14 @@ class Topology:
             graph.add_edge(routers[x], routers[x + 1])
 
         for x in xrange(start_idx, len(brokers)):
-            print brokers[x]
             if last_b <= last_r:
                 graph.add_edge(brokers[x], routers[x])
             else:
                 # @TODO - update looping over routers with brokers-edge (loop 0-n, multiple: brokers/router)
-                if x > last_r:
+                if y > last_r:
                     y = 0
                 graph.add_edge(brokers[x], routers[y])
                 y += 1
-
 
         nx.set_edge_attributes(graph, 'value', self.DEFAULT_COST)
 
