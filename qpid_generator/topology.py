@@ -6,10 +6,11 @@ import matplotlib.pyplot as plt
 from networkx.readwrite import json_graph
 
 
-class Topology():
+class Topology:
     """
-
+    Class representing generated topology.
     """
+    # Default value for edge weight
     DEFAULT_COST = 1
 
     def __init__(self):
@@ -17,9 +18,8 @@ class Topology():
 
     def load_graph_from_json(self, filename):
         """
-        Function for load graph data from file.
+        Method for load graph data from file.
         :param filename: path to file with graph data
-        :return: networkx graph
         """
 
         with open(filename, 'r') as stream:
@@ -30,11 +30,12 @@ class Topology():
 
         self.graph = json_graph.node_link_graph(graph_json)
 
-    def export_graph(self, path):
+    def export_graph(self, path, title, graph_type):
         """
-        Function for export networkx graph into svg file.
-        :param path:
-        :param graph: networkx graph
+        Method for export networkx graph into svg file.
+        :param title: Title of graph
+        :param path: Path to output file
+        :param graph_type: Graph type
         """
 
         color_map = []
@@ -44,7 +45,10 @@ class Topology():
             else:
                 color_map.append('#BBF94B')
 
-        pos = nx.spring_layout(self.graph)
+        if graph_type == 'complete_graph':
+            pos = nx.shell_layout(self.graph)
+        else:
+            pos = nx.spring_layout(self.graph)
 
         plt.figure(1, figsize=(14, 14))
         # nodes
@@ -55,16 +59,16 @@ class Topology():
         nx.draw_networkx_edge_labels(self.graph, pos, edge_labels, font_size=14)
 
         plt.axis('off')
-        # plt.title('Topology')
+        plt.title(title)
         plt.savefig(path, format='svg')
         # plt.show()  # TODO remove show, it's just for debug
 
     def create_graph(self, routers, brokers, graph_type):
         """
-
-        :param routers:
-        :param brokers:
-        :param graph_type:
+        Method for create new graph only from nodes names and graph type (complete, bus, line, line-mixed)
+        :param routers: List of routers ID
+        :param brokers: List of brokers ID
+        :param graph_type: Type of graph
         :return:
         """
         print "Graph_type: " + str(graph_type)
@@ -73,14 +77,18 @@ class Topology():
         self.graph.add_nodes_from(routers, type='router')
         self.graph.add_nodes_from(brokers, type='broker')
 
-        getattr(self, graph_type)(self.graph, routers, brokers)
+        try:
+            getattr(self, graph_type)(self.graph, routers, brokers)
+        except AttributeError:
+            print "No method for create '{}' in class Topology!\nUse: 'bus_graph', 'line_graph', 'line_mix_graph', 'complete_graph' or 'cycle_graph' in config file as graph type.".format(
+                graph_type)
+            exit(90)
 
     def complete_graph(self, graph, *_):
         """
-
-        :param graph:
-        :param _:
-        :return:
+        Method for create complete graph.
+        :param graph: Graph
+        :param _: unused parameters (called by getattr())
         """
         if graph.is_directed():
             edges = itertools.permutations(nx.nodes_iter(graph), 2)
@@ -89,15 +97,14 @@ class Topology():
 
         graph.add_edges_from(edges, value=self.DEFAULT_COST)
 
-        return graph
+        self.graph = graph
 
     def line_graph(self, graph, routers, brokers):
         """
-
-        :param graph:
-        :param routers:
-        :param brokers:
-        :return:
+        Method for create line graph (BBRRRRBB...).
+        :param graph: Graph
+        :param routers: List of routers ID
+        :param brokers: List of brokers ID
         """
         start_idx = 0
         last_b = len(brokers) - 1
@@ -116,22 +123,22 @@ class Topology():
         graph.add_edge(brokers[last_b], routers[last_r])
         nx.set_edge_attributes(graph, 'value', self.DEFAULT_COST)
 
-        return graph
+        self.graph = graph
 
     def line_mix_graph(self, graph, routers, brokers, complete=False):
         """
-
-        :param complete:
-        :param graph:
-        :param routers:
-        :param brokers:
-        :return:
+        Method for create line-mixed graph (BRBRBRBR...).
+        :param complete: Flag of line/complete graph
+        :param graph: Graph
+        :param routers: List of routers ID
+        :param brokers: List of brokers ID
         """
 
         nodes = []
         len_b = len(brokers)
         len_r = len(routers)
 
+        # @TODO add broker/routers better (2R1B2R1B...)
         if len_b > len_r:
             multiplier = len_b / len_r + 1
             for x in xrange(1, len(brokers) + len(routers) + 1):
@@ -155,27 +162,23 @@ class Topology():
 
         nx.set_edge_attributes(graph, 'value', self.DEFAULT_COST)
 
-        return graph
+        self.graph = graph
 
     def cycle_graph(self, graph, routers, brokers):
         """
-
-        :param graph:
-        :param routers:
-        :param brokers:
-        :return:
+        Method for create cycle graph.
+        :param graph: Graph
+        :param routers: List of routers ID
+        :param brokers: List of brokers ID
         """
-        graph = self.line_mix_graph(graph, routers, brokers, True)
-
-        return graph
+        self.line_mix_graph(graph, routers, brokers, True)
 
     def bus_graph(self, graph, routers, brokers):
         """
-
-        :param graph:
-        :param routers:
-        :param brokers:
-        :return:
+        Method for create bus graph.
+        :param graph: Graph
+        :param routers: List of routers ID
+        :param brokers: List of brokers ID
         """
         start_idx = 0
         y = 0
@@ -197,4 +200,4 @@ class Topology():
 
         nx.set_edge_attributes(graph, 'value', self.DEFAULT_COST)
 
-        return graph
+        self.graph = graph

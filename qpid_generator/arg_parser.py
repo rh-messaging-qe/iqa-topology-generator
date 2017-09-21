@@ -22,7 +22,7 @@ class Config:
 
     def __init__(self):
         self.graph_file = ''
-        self.graph_type = ''
+        self.graph_type = 'user_defined'
         self.path_inventory = ''
         self.machines = 2
         self.routers = 1
@@ -49,7 +49,7 @@ class Config:
         with open(results.config_file, 'r') as stream:
             try:
                 config = yaml.load(stream)
-                if 'hostfile' in config:    # @TODO - create error function for unset inventory path
+                if 'hostfile' in config:
                     self.path_inventory = config['hostfile']
                 else:
                     self.path_inventory = raw_input("Enter path to inventory: ");

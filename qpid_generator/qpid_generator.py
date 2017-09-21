@@ -9,38 +9,32 @@ from topology import Topology
 
 GEN_PATH = 'generated'
 
-config = Config()
-config.args_parse()
-
-# inputs
-graph_type = 'complete_graph'
-args = [config.routers]
-machines = config.machines
-
-print "Router: " + str(config.router_names)
-print "Broker: " + str(config.broker_names)
-
-# New instance of topology
-topology = Topology()
-
-if config.graph_file:
-    topology.load_graph_from_json(config.graph_file)
-else:
-    topology.create_graph(config.router_names, config.broker_names, config.graph_type)
-
-confs = get_conf(topology.graph)
-
 
 def main():
+    config = Config()
+    config.args_parse()
+
+    print "Router: " + str(config.router_names)
+    print "Broker: " + str(config.broker_names)
+
+    # New instance of topology
+    topology = Topology()
+    # Create graph by defined input
+    if config.graph_file:
+        topology.load_graph_from_json(config.graph_file)
+    else:
+        topology.create_graph(config.router_names, config.broker_names, config.graph_type)
+    # Generate variables
+    configs = get_conf(topology.graph)
+
     # output
-    params = "-".join([str(x) for x in args])
-    basename = "%s_%s_on_%s" % (graph_type, params, config.machines)
+    basename = "%s_R%s_B%s" % (config.graph_type, config.routers, config.brokers)
     directory = os.path.join(GEN_PATH, basename)
     if not os.path.isdir(directory):
         os.makedirs(directory)
     filename = os.path.join(directory, "confs.json")
     # Export graph
-    topology.export_graph(os.path.join(directory, "topology.svg"))
+    topology.export_graph(os.path.join(directory, "topology.svg"), basename, config.graph_type)
     # Export variables
     with open(filename, 'w') as f:
-        f.write(json.dumps({'confs': confs.values()}))
+        f.write(json.dumps({'confs': configs.values()}))

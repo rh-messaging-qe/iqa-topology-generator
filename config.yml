@@ -1,2 +1,3 @@
 hostfile: configs/inventory
-graph_type: bus_graph
+graph_type: complete_graph
+# graph_file: configs/ref_graph_file.yml
