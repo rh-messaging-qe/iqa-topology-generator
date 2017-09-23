@@ -1,2 +1,5 @@
 networkx==1.11
 pyyaml>=3.12
+pytest
+nose
+ansible==2.0

@@ -14,9 +14,6 @@ def main():
     config = Config()
     config.args_parse()
 
-    print "Router: " + str(config.router_names)
-    print "Broker: " + str(config.broker_names)
-
     # New instance of topology
     topology = Topology()
     # Create graph by defined input

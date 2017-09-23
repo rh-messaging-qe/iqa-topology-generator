@@ -1,10 +1,8 @@
 [group1]
 router1
-router2
 
 [group2]
-router3
-router4
+router2
 
 [routers:children]
 group1
@@ -15,15 +13,6 @@ group2
 broker1
 broker2
 broker3
-broker4
-broker5
-broker6
-broker7
-
 
 [clients]
-bla
-ble
-
-[gggggg]
-rum
+client1

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import sys
 
-
-from .qpid_generator import main
+from qpid_generator import main
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())

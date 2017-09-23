@@ -1,5 +1,6 @@
 import itertools
 import networkx as nx
+import sys
 import yaml
 import matplotlib.pyplot as plt
 
@@ -28,7 +29,13 @@ class Topology:
             except yaml.YAMLError as exc:
                 print(exc)
 
-        self.graph = json_graph.node_link_graph(graph_json)
+        try:
+            self.graph = json_graph.node_link_graph(graph_json)
+        except Exception as exc:
+            sys.stdout.write("Exception: {}\nLoaded file isn't contain valid graph.\n".format(exc))
+            # @TODO do proper exit/method for parse exceptions
+            # raise Exception
+            sys.exit(99)
 
     def export_graph(self, path, title, graph_type):
         """
@@ -80,9 +87,11 @@ class Topology:
         try:
             getattr(self, graph_type)(self.graph, routers, brokers)
         except AttributeError:
-            print "No method for create '{}' in class Topology!\nUse: 'bus_graph', 'line_graph', 'line_mix_graph', 'complete_graph' or 'cycle_graph' in config file as graph type.".format(
-                graph_type)
-            exit(90)
+            sys.stdout.write(
+                "No method for create '{}' in class Topology!\nUse: 'bus_graph', 'line_graph', 'line_mix_graph', 'complete_graph' or 'cycle_graph' in config file as graph type.".format(
+                    graph_type))
+            # @ TODO remove exit statement ???
+            sys.exit(90)
 
     def complete_graph(self, graph, *_):
         """
@@ -113,15 +122,22 @@ class Topology:
         for x in xrange(start_idx, last_r):
             graph.add_edge(routers[x], routers[x + 1])
 
+        # TODO maybe problem with if statement (when connecct more brokers on one side)
         for x in xrange(start_idx, last_b / 2 - 1):
+            if x - 1 < 1:
+                break
             graph.add_edge(brokers[x], brokers[x + 1])
 
         for x in xrange(last_b, last_b / 2, -1):
+            if x - 1 < 1:
+                break
             graph.add_edge(brokers[x], brokers[x - 1])
 
         graph.add_edge(brokers[start_idx], routers[start_idx])
         graph.add_edge(brokers[last_b], routers[last_r])
         nx.set_edge_attributes(graph, 'value', self.DEFAULT_COST)
+
+        print graph.edges()
 
         self.graph = graph
 
