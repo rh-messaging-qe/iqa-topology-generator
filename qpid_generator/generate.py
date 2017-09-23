@@ -51,8 +51,8 @@ def generate_listeners(graph, node):
     listeners = []
 
     if node in list_vars:
-        listeners = list_vars[node]
-    if node not in nx.get_node_attributes(graph, 'def_list'):
+        listeners.append(list_vars[node])
+    if node not in nx.get_node_attributes(graph, 'def_list') or listeners == []:
         listeners.append(
             {
                 'host': '0.0.0.0',
@@ -95,7 +95,11 @@ def generate_connectors(graph, node, nbrdict, node_type):
     connectors = []
     link_route = []
 
+    print conn_vars
+    print link_vars
+
     # @TODO - reformat this (7 rows)
+    # @TODO - router shouldn't have linkRoute to connect another router @dlenoch
     if node in conn_vars:
         if node in link_vars:
             for host in conn_vars:
@@ -104,8 +108,18 @@ def generate_connectors(graph, node, nbrdict, node_type):
                         link_route.append(route)
                         connectors = conn_vars[node]
 
+    # @TODO update this statement (when u add only one connector it add dictionary, not list!)
+    if not connectors:
+        if isinstance(conn_vars[node], list):
+            connectors = conn_vars[node]
+        else:
+            connectors = [conn_vars[node]]
+        print type(connectors)
+
+    print connectors
+
     if node not in nx.get_node_attributes(graph, 'def_conn'):
-        # outgoing links
+        # outgoing
         for out in nbrdict.keys():
             if node_type[out] == 'router':
                 connectors.append({
@@ -141,7 +155,7 @@ def generate_router_info(graph, node):
     :return: router variables in json
     """
 
-    rout_vars = nx.get_node_attributes(graph, 'router')
+    rout_vars = nx.get_node_attributes(graph, 'mode')
     # TODO - problem ve vars pro ansible (jedna masina, jeden router - vymyslet a vyzkouset moznosti pro vice routru na masine) a upravit dle toho generovani
     mode = rout_vars[node] if node in rout_vars else 'standalone'
 
