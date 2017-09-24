@@ -1,10 +1,6 @@
-import os
 import unittest
 
-import itertools
-import networkx as nx
-from nose import with_setup
-from nose.tools import assert_equals, raises
+from nose.tools import assert_equals
 
 from ..generate import *
 
@@ -74,11 +70,11 @@ class GenerateListeners(unittest.TestCase):
                 'port': '777'},
             {
                 'host': '0.0.0.0',
-                'port': 5672,
+                'port': '5672',
                 'role': 'inter-router'},
             {
                 'host': '0.0.0.0',
-                'port': 5672,
+                'port': '5672',
                 'role': 'normal',
                 'authenticatePeer': 'no',
                 'saslMechanisms': 'ANONYMOUS'
@@ -92,11 +88,11 @@ class GenerateListeners(unittest.TestCase):
         listener = [
             {
                 'host': '0.0.0.0',
-                'port': 5672,
+                'port': '5672',
                 'role': 'inter-router'},
             {
                 'host': '0.0.0.0',
-                'port': 5672,
+                'port': '5672',
                 'role': 'normal',
                 'authenticatePeer': 'no',
                 'saslMechanisms': 'ANONYMOUS'
@@ -110,11 +106,11 @@ class GenerateListeners(unittest.TestCase):
         listener = [
             {
                 'host': '0.0.0.0',
-                'port': 5672,
+                'port': '5672',
                 'role': 'inter-router'},
             {
                 'host': '0.0.0.0',
-                'port': 5672,
+                'port': '5672',
                 'role': 'normal',
                 'authenticatePeer': 'no',
                 'saslMechanisms': 'ANONYMOUS'
@@ -162,6 +158,7 @@ class GenerateConnectors(unittest.TestCase):
         assert_equals((connector, link_routes), generated)
 
     def test_generate_connector_2(self):
+        # @TODO there should be only one connector, merge both of them or what? @dlenoch
         connector = [
             {
                 'host': 'router1',
@@ -173,12 +170,12 @@ class GenerateConnectors(unittest.TestCase):
             },
             {
                 'host': 'router1',
-                'port': 5672,
+                'port': '5672',
                 'role': 'inter-router'
             },
             {
                 'host': 'router3',
-                'port': 5672,
+                'port': '5672',
                 'role': 'inter-router'
             }
         ]
@@ -202,13 +199,13 @@ class GenerateConnectors(unittest.TestCase):
             },
             {
                 'host': 'router1',
-                'port': 5672,
+                'port': '5672',
                 'role': 'inter-router'
             },
             {
                 # @TODO there should be only one connector, merge both of them or what? @dlenoch
                 'host': 'router2',
-                'port': 5672,
+                'port': '5672',
                 'role': 'inter-router'
             }
         ]
@@ -223,3 +220,97 @@ class GenerateConnectors(unittest.TestCase):
 
         assert_equals(sorted(connector), sorted(gen_conn))
         assert_equals(sorted(link_routes), sorted(gen_link))
+
+    def test_generate_connector_4(self):
+        connector = []
+
+        link_routes = []
+
+        nbrdict = {'router2': {u'value': 10}, 'router1': {u'value': 5}}
+        node_types = {'router1': 'router', 'router2': 'router', 'router3': 'router', 'router4': 'router',
+                      'router5': 'router'}
+
+        gen_conn, gen_link = generate_connectors(self.graph, 'router4', nbrdict, node_types)
+
+        assert_equals(sorted(connector), sorted(gen_conn))
+        assert_equals(sorted(link_routes), sorted(gen_link))
+
+    def test_generate_connector_5(self):
+        connector = [
+            {
+                'host': 'router4',
+                'port': '5672',
+                'role': 'inter-router'
+            },
+            {
+                'host': 'router3',
+                'port': '5672',
+                'role': 'inter-router'
+            }
+        ]
+
+        link_routes = []
+
+        nbrdict = {'router4': {u'value': 10}, 'router3': {u'value': 5}}
+        node_types = {'router1': 'router', 'router2': 'router', 'router3': 'router', 'router4': 'router',
+                      'router5': 'router'}
+
+        gen_conn, gen_link = generate_connectors(self.graph, 'router5', nbrdict, node_types)
+
+        assert_equals(sorted(connector), sorted(gen_conn))
+        assert_equals(sorted(link_routes), sorted(gen_link))
+
+    def test_generate_connector_6(self):
+        connector = [
+            {
+                'host': 'router1',
+                'port': '5672',
+                'role': 'inter-router'
+            },
+            {
+                'host': 'router3',
+                'port': '5672',
+                'role': 'inter-router'
+            },
+            {
+                'host': 'broker1',
+                'port': '5672',
+                'role': 'route-container'
+            }
+        ]
+
+        link_routes = [
+            {
+                'prefix': 'default_queue',
+                'connection': 'broker1',
+                'dir': 'in'
+            },
+            {
+                'prefix': 'default_queue',
+                'connection': 'broker1',
+                'dir': 'out'
+            }
+        ]
+
+        nbrdict = {'router1': {u'value': 10}, 'router3': {u'value': 5}, 'broker1': {u'value': 7}}
+        node_types = {'router1': 'router', 'router2': 'router', 'router3': 'router', 'router4': 'router',
+                      'router5': 'router', 'broker1': 'broker'}
+
+        gen_conn, gen_link = generate_connectors(self.graph, 'router5', nbrdict, node_types)
+
+        print connector
+        print gen_conn
+
+        assert_equals(sorted(connector), sorted(gen_conn))
+        assert_equals(sorted(link_routes), sorted(gen_link))
+
+
+class GenerateFullConfig(unittest.TestCase):
+    @classmethod
+    def setup_class(cls):
+        cls.graph = nx.Graph()
+
+       # @TODO - complete test for generate full config from graph
+
+    def test_generate_configs_1(self):
+        pass
