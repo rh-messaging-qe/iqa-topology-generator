@@ -1,9 +1,7 @@
-import os
+import itertools
 import unittest
 
-import itertools
 import networkx as nx
-from nose import with_setup
 from nose.tools import assert_equals, raises
 
 from qpid_generator.topology import Topology
@@ -30,15 +28,13 @@ class LoadTopologyTest(unittest.TestCase):
     def test_load_empty_graph(self):
         self.topology.load_graph_from_json('tests/items/empty_graph_test.yml')
 
+    def test_load_ref_graph(self):
+        self.topology.load_graph_from_json('tests/items/ref_graph_test.yml')
 
-    # @TODO - allow all tests and consult outputs
-    # def test_load_ref_graph(self):
-    #     self.topology.load_graph_from_json('tests/items/ref_graph_test.yml')
-    #
-    #     print self.topology.graph.edges()
-    #     print self.graph.edges()
-    #
-    #     assert_equals(nx.is_isomorphic(self.graph, self.topology.graph), True)
+        print self.topology.graph.edges()
+        print self.graph.edges()
+
+        assert_equals(nx.is_isomorphic(self.graph, self.topology.graph), True)
 
 
 class SmallTopologyTest(unittest.TestCase):
@@ -50,15 +46,16 @@ class SmallTopologyTest(unittest.TestCase):
         cls.graph.add_node('router1', type='router')
         cls.graph.add_node('broker1', type='broker')
         cls.graph.add_node('broker2', type='broker')
-        cls.graph.add_edge('router1', 'broker1', value=1)
-        cls.graph.add_edge('router1', 'broker2', value=1)
 
         cls.routers = ['router1']
         cls.brokers = ['broker1', 'broker2']
 
+    def setUp(self):
+        self.graph.add_edge('router1', 'broker1', value=1)
+        self.graph.add_edge('router1', 'broker2', value=1)
 
-    def teardown_edges(self):
-        self.graph.add_edge('broker1', 'broker2', value=1)
+    def tearDown(self):
+        self.graph.clear()
 
     def test_load_graph(self):
         self.topology.load_graph_from_json('tests/items/graph_test.yml')
@@ -77,7 +74,9 @@ class SmallTopologyTest(unittest.TestCase):
         assert_equals(nx.is_isomorphic(self.graph, self.topology.graph), True)
 
     def test_create_complete(self):
+        self.graph.add_edge('broker1', 'broker2', value=1)
         self.topology.create_graph(self.routers, self.brokers, 'complete_graph')
+
         assert_equals(nx.is_isomorphic(self.graph, self.topology.graph), True)
 
 
@@ -129,7 +128,7 @@ class BiggerTopologyTest(unittest.TestCase):
         assert_equals(nx.is_isomorphic(self.graph, self.topology.graph), True)
 
     def test_crete_complete(self):
-        edges = itertools.permutations(nx.nodes_iter(self.graph), 2)
+        edges = itertools.permutations(self.graph.nodes(), 2)
         self.graph.add_edges_from(edges, value=1)
 
         self.topology.create_graph(self.routers, self.brokers, 'complete_graph')

@@ -33,7 +33,6 @@ class Topology:
             self.graph = json_graph.node_link_graph(graph_json)
         except Exception as exc:
             sys.stdout.write("Exception: {}\nLoaded file isn't contain valid graph.\n".format(exc))
-            # @TODO do proper exit/method for parse exceptions
             # raise Exception
             sys.exit(99)
 
@@ -78,7 +77,7 @@ class Topology:
         :param graph_type: Type of graph
         :return:
         """
-        print "Graph_type: " + str(graph_type)
+        sys.stderr.write("Graph_type: " + str(graph_type)+"\n")
         self.graph = nx.Graph()
 
         self.graph.add_nodes_from(routers, type='router')
@@ -88,9 +87,8 @@ class Topology:
             getattr(self, graph_type)(self.graph, routers, brokers)
         except AttributeError:
             sys.stdout.write(
-                "No method for create '{}' in class Topology!\nUse: 'bus_graph', 'line_graph', 'line_mix_graph', 'complete_graph' or 'cycle_graph' in config file as graph type.".format(
+                "No method for create '{}' in class Topology!\nUse: 'bus_graph', 'line_graph', 'line_mix_graph', 'complete_graph' or 'cycle_graph' in config file as graph type.\n".format(
                     graph_type))
-            # @ TODO remove exit statement ???
             sys.exit(90)
 
     def complete_graph(self, graph, *_):
@@ -100,9 +98,9 @@ class Topology:
         :param _: unused parameters (called by getattr())
         """
         if graph.is_directed():
-            edges = itertools.permutations(nx.nodes_iter(graph), 2)
+            edges = itertools.permutations(self.graph.nodes(), 2)
         else:
-            edges = itertools.combinations(nx.nodes_iter(graph), 2)
+            edges = itertools.combinations(self.graph.nodes(), 2)
 
         graph.add_edges_from(edges, value=self.DEFAULT_COST)
 
@@ -136,8 +134,6 @@ class Topology:
         graph.add_edge(brokers[start_idx], routers[start_idx])
         graph.add_edge(brokers[last_b], routers[last_r])
         nx.set_edge_attributes(graph, 'value', self.DEFAULT_COST)
-
-        print graph.edges()
 
         self.graph = graph
 

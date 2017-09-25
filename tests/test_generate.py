@@ -158,7 +158,6 @@ class GenerateConnectors(unittest.TestCase):
         assert_equals((connector, link_routes), generated)
 
     def test_generate_connector_2(self):
-        # @TODO there should be only one connector, merge both of them or what? @dlenoch
         connector = [
             {
                 'host': 'router1',
@@ -203,7 +202,6 @@ class GenerateConnectors(unittest.TestCase):
                 'role': 'inter-router'
             },
             {
-                # @TODO there should be only one connector, merge both of them or what? @dlenoch
                 'host': 'router2',
                 'port': '5672',
                 'role': 'inter-router'
@@ -310,7 +308,137 @@ class GenerateFullConfig(unittest.TestCase):
     def setup_class(cls):
         cls.graph = nx.Graph()
 
-       # @TODO - complete test for generate full config from graph
+        cls.graph.add_node('router1', type='router',
+                           connector=[{'host': 'router2', 'port': '5675', 'mode': 'inter-router'}], def_conn='no')
+        cls.graph.add_node('router2', type='router',
+                           connector=[{'host': 'router1', 'port': '5678', 'mode': 'inter-router'}], def_conn='no')
+
+        cls.graph.add_node('broker1', type='broker')
+        cls.graph.add_node('broker2', type='broker')
+        cls.graph.add_node('broker3', type='broker')
+
+        cls.graph.add_edge('router2', 'router1', value=10)
+        cls.graph.add_edge('router2', 'broker2', value=5)
+        cls.graph.add_edge('router2', 'broker3', value=6)
+        cls.graph.add_edge('router1', 'broker1', value=7)
+
 
     def test_generate_configs_1(self):
+        # @TODO comparasion between two dictionary with different posiiton of values
+        config = {
+                "router1":
+                    {
+                        "machine": "router1",
+                        "router": [
+                            {
+                                "id": "router2",
+                                "mode": "standalone"
+                            }
+                        ],
+                        "listener": [
+                            {
+
+                                'host': '0.0.0.0',
+                                'port': '5672',
+                                'role': 'inter-router'
+                            },
+                            {
+                                'host': '0.0.0.0',
+                                'port': '5672',
+                                'role': 'normal',
+                                'authenticatePeer': 'no',
+                                'saslMechanisms': 'ANONYMOUS'
+                            }
+                        ],
+                        "connector": [
+                            {
+                                "host": "router2",
+                                "port": '5675',
+                                'mode': 'inter-router'
+                            },
+                            {
+                                "host": "broker1",
+                                "port": '5672',
+                                'mode': 'route-container'
+                            }
+                        ],
+                        "linkRoute": [
+                            {
+                                "prefix": "default_queue",
+                                "connection": "broker1",
+                                "dir": "in"
+                            },
+                            {
+                                "prefix": "default_queue",
+                                "connection": "broker1",
+                                "dir": "out"
+                            }
+                        ]
+                    },
+                'router2':
+                    {
+                        "machine": "router2",
+                        "router": [
+                            {
+                                "id": "router1",
+                                "mode": "standalone"
+                            }
+                        ],
+                        "listener": [
+                            {
+                                "host": "0.0.0.0",
+                                "role": "inter-router",
+                                "port": "5672"
+                            },
+                            {
+                                "host": "0.0.0.0",
+                                "authenticatePeer": "no",
+                                "role": "normal",
+                                "port": "5672",
+                                "saslMechanisms": "ANONYMOUS"
+                            }
+                        ],
+                        "connector": [
+                            {
+                                "host": "router1",
+                                "role": "inter-router",
+                                "port": "5678"
+                            },
+                            {
+                                "host": "broker2",
+                                "role": "route-container",
+                                "port": "5672"
+                            },
+                            {
+                                "host": "broker3",
+                                "role": "route-container",
+                                "port": "5672"
+                            }
+                        ],
+                        "linkRoute": [
+                            {
+                                "prefix": "default_queue",
+                                "connection": "broker2",
+                                "dir": "in"
+                            },
+                            {
+                                "prefix": "default_queue",
+                                "connection": "broker2",
+                                "dir": "out"
+                            },
+                            {
+                                "prefix": "default_queue",
+                                "connection": "broker3",
+                                "dir": "in"
+                            },
+                            {
+                                "prefix": "default_queue",
+                                "connection": "broker3",
+                                "dir": "out"
+                            }
+                        ]
+                    }
+            }
+
+        # assert_equals(get_conf(self.graph), config)
         pass

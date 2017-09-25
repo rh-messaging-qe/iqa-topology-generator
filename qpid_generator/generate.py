@@ -19,7 +19,7 @@ def get_conf(graph):
     confs = {}
     node_type = nx.get_node_attributes(graph, 'type')
 
-    for node, nbrdict in graph.adjacency_iter():
+    for node, nbrdict in graph.adjacency():
         if node_type[node] == 'broker':
             continue
         # init
@@ -34,6 +34,8 @@ def get_conf(graph):
             confs[node].update({'connector': connectors})
         if link_routes:
             confs[node].update({'linkRoute': link_routes})
+
+    # print confs
 
     return confs
 
@@ -72,7 +74,7 @@ def generate_listeners(graph, node):
 
     return listeners
 
-
+# @TODO for two routers should be same connectors
 def generate_connectors(graph, node, nbrdict, node_type):
     """
     Function for generate connectors.
@@ -95,11 +97,7 @@ def generate_connectors(graph, node, nbrdict, node_type):
     connectors = []
     link_route = []
 
-    print conn_vars
-    print link_vars
-
     # @TODO - reformat this (7 rows)
-    # @TODO - router shouldn't have linkRoute to connect another router @dlenoch
     if node in conn_vars:
         if node in link_vars:
             for host in conn_vars:
@@ -108,19 +106,15 @@ def generate_connectors(graph, node, nbrdict, node_type):
                         link_route.append(route)
                         connectors = conn_vars[node]
 
-        # @TODO update this statement (when u add only one connector it add dictionary, not list!)
         if not connectors:
             if isinstance(conn_vars[node], list):
                 connectors = conn_vars[node]
             else:
                 connectors = [conn_vars[node]]
 
-    print connectors
-
     if node not in nx.get_node_attributes(graph, 'def_conn'):
         # outgoing
         for out in nbrdict.keys():
-            print node_type[out]
             if node_type[out] == 'router':
                 connectors.append({
                     'host': out,

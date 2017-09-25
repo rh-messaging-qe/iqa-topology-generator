@@ -33,16 +33,16 @@ nodes:
 - type: broker
   id: broker1
 links:
-- source: 0
-  target: 1
+- source: router2
+  target: router1
   value: 10
-- source: 0
-  target: 2
+- source: router2
+  target: broker2
   value: 5
-- source: 0
-  target: 3
+- source: router2
+  target: broker3
   value: 6
-- source: 1
-  target: 4
+- source: router1
+  target: broker1
   value: 7
 multigraph: false
