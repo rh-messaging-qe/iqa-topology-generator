@@ -2,7 +2,7 @@ import unittest
 
 from nose.tools import assert_equals
 
-from ..generate import *
+from qpid_generator.generate import *
 
 
 class GenerateRouterInfo(unittest.TestCase):
