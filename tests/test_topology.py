@@ -192,10 +192,6 @@ class HugeBrokerTopologyTest(unittest.TestCase):
         self.graph.add_edge('broker7', 'broker6', value=1)
 
         self.topology.create_graph(self.routers, self.brokers, 'line_graph')
-
-        print self.graph.edges()
-        print self.topology.graph.edges()
-
         assert_equals(nx.is_isomorphic(self.graph, self.topology.graph), True)
 
     def test_create_line_mix(self):
@@ -209,10 +205,6 @@ class HugeBrokerTopologyTest(unittest.TestCase):
         self.graph.add_edge('broker6', 'broker7', value=1)
 
         self.topology.create_graph(self.routers, self.brokers, 'line_mix_graph')
-
-        print self.graph.edges()
-        print self.topology.graph.edges()
-
         assert_equals(nx.is_isomorphic(self.graph, self.topology.graph), True)
 
     def test_create_bus(self):
@@ -226,10 +218,6 @@ class HugeBrokerTopologyTest(unittest.TestCase):
         self.graph.add_edge('router2', 'broker6', value=1)
 
         self.topology.create_graph(self.routers, self.brokers, 'bus_graph')
-
-        print self.graph.edges()
-        print self.topology.graph.edges()
-
         assert_equals(nx.is_isomorphic(self.graph, self.topology.graph), True)
 
     def test_create_complete(self):
@@ -275,10 +263,6 @@ class HugeRouterTopologyTest(unittest.TestCase):
         self.graph.add_edge('broker2', 'router7', value=1)
 
         self.topology.create_graph(self.routers, self.brokers, 'line_graph')
-
-        print self.graph.edges()
-        print self.topology.graph.edges()
-
         assert_equals(nx.is_isomorphic(self.graph, self.topology.graph), True)
 
     def test_create_line_mix(self):
@@ -292,10 +276,6 @@ class HugeRouterTopologyTest(unittest.TestCase):
         self.graph.add_edge('router6', 'router7', value=1)
 
         self.topology.create_graph(self.routers, self.brokers, 'line_mix_graph')
-
-        print self.graph.edges()
-        print self.topology.graph.edges()
-
         assert_equals(nx.is_isomorphic(self.graph, self.topology.graph), True)
 
     def test_create_bus(self):
@@ -309,10 +289,6 @@ class HugeRouterTopologyTest(unittest.TestCase):
         self.graph.add_edge('router2', 'broker2', value=1)
 
         self.topology.create_graph(self.routers, self.brokers, 'bus_graph')
-
-        print self.graph.edges()
-        print self.topology.graph.edges()
-
         assert_equals(nx.is_isomorphic(self.graph, self.topology.graph), True)
 
     def test_create_complete(self):
