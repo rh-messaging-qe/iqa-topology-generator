@@ -14,3 +14,4 @@ test*.yml
 *.svg
 qpid_generator.egg-info
 .*/
+.tox

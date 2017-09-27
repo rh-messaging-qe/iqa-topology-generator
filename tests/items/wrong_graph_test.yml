@@ -1,0 +1,32 @@
+{{
+  "directed": false,
+  "graph": {
+  },
+  "nodes": [
+    {
+      "type": "router",
+      "id": "router1"
+    },
+    {
+      "type": "broker",
+      "id": "broker1"
+    },
+    {
+      "type": "broker",
+      "id": "broker2"
+    }
+  ],
+  "links": [
+    {
+      "source": "broker1",
+      "target": "router1",
+      "value": 1
+    },
+    {
+      "source": "broker2",
+      "target": "router1",
+      "value": 1
+    }
+  ],
+  "multigraph": false
+}

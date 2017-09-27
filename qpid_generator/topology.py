@@ -13,6 +13,9 @@ class Topology:
     """
     # Default value for edge weight
     DEFAULT_COST = 1
+    ERR_GRAPH_FORMAT = 99
+    ERR_OPEN_FILE = 98
+    ERR_CREATE_GRAPH = 97
 
     def __init__(self):
         self.graph = None
@@ -23,18 +26,20 @@ class Topology:
         :param filename: path to file with graph data
         """
 
-        with open(filename, 'r') as stream:
-            try:
+        try:
+            with open(filename, 'r') as stream:
                 graph_json = yaml.load(stream)
-            except yaml.YAMLError as exc:
-                print(exc)
+        except Exception as exc:
+            sys.stdout.write("Exception: {}\nFile {} doesn't exists.\n".format(exc, filename))
+            # raise Exception
+            sys.exit(self.ERR_OPEN_FILE)
 
         try:
             self.graph = json_graph.node_link_graph(graph_json)
         except Exception as exc:
             sys.stdout.write("Exception: {}\nLoaded file isn't contain valid graph.\n".format(exc))
             # raise Exception
-            sys.exit(99)
+            sys.exit(self.ERR_GRAPH_FORMAT)
 
     def export_graph(self, path, title, graph_type):
         """
@@ -77,7 +82,7 @@ class Topology:
         :param graph_type: Type of graph
         :return:
         """
-        sys.stderr.write("Graph_type: " + str(graph_type)+"\n")
+        sys.stderr.write("Graph_type: " + str(graph_type)+"\n") # @TODO remove this
         self.graph = nx.Graph()
 
         self.graph.add_nodes_from(routers, type='router')
@@ -89,7 +94,7 @@ class Topology:
             sys.stdout.write(
                 "No method for create '{}' in class Topology!\nUse: 'bus_graph', 'line_graph', 'line_mix_graph', 'complete_graph' or 'cycle_graph' in config file as graph type.\n".format(
                     graph_type))
-            sys.exit(90)
+            sys.exit(self.ERR_CREATE_GRAPH)
 
     def complete_graph(self, graph, *_):
         """
@@ -98,7 +103,7 @@ class Topology:
         :param _: unused parameters (called by getattr())
         """
         if graph.is_directed():
-            edges = itertools.permutations(self.graph.nodes(), 2)
+            edges = itertools.permutations(self.graph.nodes(), 2)       # For future using
         else:
             edges = itertools.combinations(self.graph.nodes(), 2)
 
@@ -114,25 +119,20 @@ class Topology:
         :param brokers: List of brokers ID
         """
         start_idx = 0
-        last_b = len(brokers) - 1
+        last_b = len(brokers)
         last_r = len(routers) - 1
 
         for x in xrange(start_idx, last_r):
             graph.add_edge(routers[x], routers[x + 1])
 
-        # TODO maybe problem with if statement (when connecct more brokers on one side)
         for x in xrange(start_idx, last_b / 2 - 1):
-            if x - 1 < 1:
-                break
             graph.add_edge(brokers[x], brokers[x + 1])
 
-        for x in xrange(last_b, last_b / 2, -1):
-            if x - 1 < 1:
-                break
+        for x in xrange(last_b - 1, last_b / 2, -1):
             graph.add_edge(brokers[x], brokers[x - 1])
 
         graph.add_edge(brokers[start_idx], routers[start_idx])
-        graph.add_edge(brokers[last_b], routers[last_r])
+        graph.add_edge(brokers[last_b - 1], routers[last_r])
         nx.set_edge_attributes(graph, 'value', self.DEFAULT_COST)
 
         self.graph = graph

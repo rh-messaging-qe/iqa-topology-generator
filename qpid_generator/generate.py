@@ -35,8 +35,6 @@ def get_conf(graph):
         if link_routes:
             confs[node].update({'linkRoute': link_routes})
 
-    # print confs
-
     return confs
 
 
@@ -100,11 +98,12 @@ def generate_connectors(graph, node, nbrdict, node_type):
     # @TODO - reformat this (7 rows)
     if node in conn_vars:
         if node in link_vars:
-            for host in conn_vars:
-                for route in link_vars[node]:
-                    if host == route['connection']:
-                        link_route.append(route)
-                        connectors = conn_vars[node]
+            for confs in conn_vars[node]:
+                if isinstance(confs, dict):
+                    for route in link_vars[node]:
+                        if confs.get('name') == route['connection']:
+                            link_route.append(route)
+                            connectors = conn_vars[node]
 
         if not connectors:
             if isinstance(conn_vars[node], list):
@@ -117,12 +116,14 @@ def generate_connectors(graph, node, nbrdict, node_type):
         for out in nbrdict.keys():
             if node_type[out] == 'router':
                 connectors.append({
+                    'name': out,
                     'host': out,
                     'port': DEFAULT_PORT,  # same rule as above
                     'role': 'inter-router'
                 })
             elif node_type[out] == 'broker':
                 connectors.append({
+                    'name': out,
                     'host': out,
                     'port': DEFAULT_PORT,  # same rule as above
                     'role': 'route-container'
