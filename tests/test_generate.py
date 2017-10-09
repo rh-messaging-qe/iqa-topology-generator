@@ -4,7 +4,7 @@ from libracmp import Comparator
 from nose.tools import *
 
 
-from qpid_generator.generate import *
+from msg_topgen.generate import *
 
 
 class GenerateRouterInfo(unittest.TestCase):

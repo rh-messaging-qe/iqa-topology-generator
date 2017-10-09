@@ -1,4 +1,4 @@
-# qpid dispatch topology generator
+# Messaging topology generator (msg_topgen)
 
 Package for generatate/load topology defined by graph/hosts. Also generate global variables for topology.
 

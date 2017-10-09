@@ -5,7 +5,7 @@ import unittest
 import networkx as nx
 from nose.tools import assert_equals, raises
 
-from qpid_generator.topology import Topology
+from msg_topgen.topology import Topology
 
 
 class LoadTopologyTest(unittest.TestCase):

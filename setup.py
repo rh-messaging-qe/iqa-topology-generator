@@ -7,11 +7,11 @@ from setuptools import setup
 from pip.req import parse_requirements
 
 setup(
-    name='qpid_generator',
+    name='msg_topgen',
     version='0.1.1',
-    packages=['qpid_generator'],
+    packages=['msg_topgen'],
     entry_points={
-        "console_scripts": ['qpid_generator = qpid_generator.qpid_generator:main']
+        "console_scripts": ['msg_topgen = msg_topgen.msg_topgen:main']
     },
     license='Apache 2.0',
     description='',
