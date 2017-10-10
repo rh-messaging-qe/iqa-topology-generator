@@ -14,7 +14,7 @@ reqs = [str(ir.req) for ir in install_reqs]
 
 setup(
     name='msg_topgen',
-    version='0.1.1',
+    version='0.1.2',
     packages=['msg_topgen'],
     entry_points={
         "console_scripts": ['msg_topgen = msg_topgen.msg_topgen:main']
