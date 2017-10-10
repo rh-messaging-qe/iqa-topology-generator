@@ -82,7 +82,7 @@ class Topology:
         :param graph_type: Type of graph
         :return:
         """
-        sys.stderr.write("Graph_type: " + str(graph_type)+"\n") # @TODO remove this
+        sys.stderr.write("Graph_type: " + str(graph_type)+"\n")  # @TODO remove this
         self.graph = nx.Graph()
 
         self.graph.add_nodes_from(routers, type='router')
@@ -92,7 +92,8 @@ class Topology:
             getattr(self, graph_type)(self.graph, routers, brokers)
         except AttributeError:
             sys.stdout.write(
-                "No method for create '{}' in class Topology!\nUse: 'bus_graph', 'line_graph', 'line_mix_graph', 'complete_graph' or 'cycle_graph' in config file as graph type.\n".format(
+                "No method for create '{}' in class Topology!\nUse: 'bus_graph', 'line_graph', 'line_mix_graph', "
+                "'complete_graph' or 'cycle_graph' in config file as graph type.\n".format(
                     graph_type))
             sys.exit(self.ERR_CREATE_GRAPH)
 

@@ -72,6 +72,7 @@ def generate_listeners(graph, node):
 
     return listeners
 
+
 # @TODO for two routers should be same connectors
 def generate_connectors(graph, node, nbrdict, node_type):
     """
@@ -151,7 +152,8 @@ def generate_router_info(graph, node):
     """
 
     rout_vars = nx.get_node_attributes(graph, 'mode')
-    # TODO - problem ve vars pro ansible (jedna masina, jeden router - vymyslet a vyzkouset moznosti pro vice routru na masine) a upravit dle toho generovani
+    # @todo - problem ve vars pro ansible (jedna masina, jeden router - vymyslet a
+    # @todo   vyzkouset moznosti pro vice routru na masine) a upravit dle toho generovani
     mode = rout_vars[node] if node in rout_vars else 'standalone'
 
     router_info = {

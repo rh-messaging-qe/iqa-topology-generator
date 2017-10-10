@@ -1,5 +1,3 @@
-import unittest
-import sys
 from libracmp import Comparator
 from nose.tools import *
 
