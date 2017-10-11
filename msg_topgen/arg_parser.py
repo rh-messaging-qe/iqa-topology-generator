@@ -62,10 +62,14 @@ class Config:
                 print(exc)
 
         self.parse_inventory(self.path_inventory)
-
         self.routers = len(self.router_names)
         self.brokers = len(self.broker_names)
         self.machines = self.routers + self.brokers
+
+        if self.routers <= 0:
+            raise Exception("You're trying to create topology without router and this is useless.\nPlease check documentation on https://github.com/rh-messaging-qe/iqa-topology-generator .")
+
+
 
     def parse_inventory(self, filename):
         """

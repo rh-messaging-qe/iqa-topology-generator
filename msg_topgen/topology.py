@@ -132,8 +132,9 @@ class Topology:
         for x in xrange(last_b - 1, last_b / 2, -1):
             graph.add_edge(brokers[x], brokers[x - 1])
 
-        graph.add_edge(brokers[start_idx], routers[start_idx])
-        graph.add_edge(brokers[last_b - 1], routers[last_r])
+        if brokers and routers:
+            graph.add_edge(brokers[start_idx], routers[start_idx])
+            graph.add_edge(brokers[last_b - 1], routers[last_r])
         nx.set_edge_attributes(graph, 'value', self.DEFAULT_COST)
 
         self.graph = graph

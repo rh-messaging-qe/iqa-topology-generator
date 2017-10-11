@@ -1,5 +1,7 @@
 from libracmp import Comparator
 from nose.tools import *
+import unittest
+import sys
 
 
 from msg_topgen.generate import *

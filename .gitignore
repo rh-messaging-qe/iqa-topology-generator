@@ -3,7 +3,7 @@ generated/
 *.retry
 *.pyc
 .idea
-pyenv2
+pyenv*
 build
 dist
 test*.yaml
