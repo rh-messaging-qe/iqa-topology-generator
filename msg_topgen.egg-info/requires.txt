@@ -1,0 +1,6 @@
+networkx==2.0
+pyaml>=3.12
+ansible==2.0
+libracmp
+matplotlib
+argparse

@@ -3,9 +3,9 @@
 import json
 import os
 
-from .arg_parser import Config
-from .generate import get_conf
-from .topology import Topology
+from arg_parser import Config
+from generate import get_conf
+from topology import Topology
 
 GEN_PATH = 'generated'
 

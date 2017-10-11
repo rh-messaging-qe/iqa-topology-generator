@@ -12,8 +12,11 @@ class GenerateRouterInfo(unittest.TestCase):
     def setup_class(cls):
         cls.graph = nx.Graph()
 
-        cls.graph.add_node('router1', type='router', mode='inter-router')
+        cls.graph.add_node('router1', type='router', mode='standalone')
         cls.graph.add_node('router2', type='router')
+
+        cls.nbrdict = {'router1': {u'value': 1}, 'router2': {u'value': 1}}
+        cls.node_types = {'router1': 'router', 'router2': 'router', }
 
     def test_generate_router_1(self):
         router = {
@@ -21,12 +24,12 @@ class GenerateRouterInfo(unittest.TestCase):
             'router': [
                 {
                     'id': 'router1',
-                    'mode': 'inter-router'
+                    'mode': 'standalone'
                 }
             ]
         }
 
-        generated = generate_router_info(self.graph, 'router1')
+        generated = generate_router_info(self.graph, 'router1', self.nbrdict, self.node_types)
         assert_equals(router, generated)
 
     def test_generate_router_2(self):
@@ -35,12 +38,12 @@ class GenerateRouterInfo(unittest.TestCase):
             'router': [
                 {
                     'id': 'router2',
-                    'mode': 'standalone'
+                    'mode': 'interior'
                 }
             ]
         }
 
-        generated = generate_router_info(self.graph, 'router2')
+        generated = generate_router_info(self.graph, 'router2', self.nbrdict, self.node_types)
         assert_equals(router, generated)
 
 
@@ -54,6 +57,8 @@ class GenerateListeners(unittest.TestCase):
         cls.graph.add_node('router3', type='router', def_list='no')
         cls.graph.add_node('router4', type='router')
 
+        cls.node_types = {'router1': 'router', 'router2': 'router', 'router3': 'router', 'router4': 'router', 'broker1': 'broker'}
+
     def test_generate_listeners_1(self):
         listener = [
             {
@@ -62,28 +67,34 @@ class GenerateListeners(unittest.TestCase):
             }
         ]
 
-        generated = generate_listeners(self.graph, 'router1')
+        generated = generate_listeners(self.graph, 'router1', {}, self.node_types)
         assert_equals(listener, generated)
 
     def test_generate_listeners_2(self):
         listener = [
             {
                 'host': '0.0.0.0',
-                'port': '777'},
-            {
-                'host': '0.0.0.0',
-                'port': '5672',
-                'role': 'inter-router'},
+                'port': '777'
+            },
             {
                 'host': '0.0.0.0',
                 'port': '5672',
                 'role': 'normal',
                 'authenticatePeer': 'no',
                 'saslMechanisms': 'ANONYMOUS'
+            },
+            {
+                'host': '0.0.0.0',
+                'port': '5672',
+                'role': 'inter-router',
+                'authenticatePeer': 'no',
+                'saslMechanisms': 'ANONYMOUS'
             }
         ]
 
-        generated = generate_listeners(self.graph, 'router2')
+        nbrdict = {'router1': {u'value': 1}}
+
+        generated = generate_listeners(self.graph, 'router2', nbrdict, self.node_types)
         assert_equals(listener, generated)
 
     def test_generate_listeners_3(self):
@@ -91,17 +102,29 @@ class GenerateListeners(unittest.TestCase):
             {
                 'host': '0.0.0.0',
                 'port': '5672',
-                'role': 'inter-router'},
+                'role': 'normal',
+                'authenticatePeer': 'no',
+                'saslMechanisms': 'ANONYMOUS'
+            },
             {
                 'host': '0.0.0.0',
                 'port': '5672',
-                'role': 'normal',
+                'role': 'inter-router',
+                'authenticatePeer': 'no',
+                'saslMechanisms': 'ANONYMOUS'
+            },
+            {
+                'host': '0.0.0.0',
+                'port': '5672',
+                'role': 'route-container',
                 'authenticatePeer': 'no',
                 'saslMechanisms': 'ANONYMOUS'
             }
         ]
 
-        generated = generate_listeners(self.graph, 'router3')
+        nbrdict = {'router1': {u'value': 1}, 'broker1': {u'value': 1}}
+
+        generated = generate_listeners(self.graph, 'router3', nbrdict, self.node_types)
         assert_equals(listener, generated)
 
     def test_generate_listeners_4(self):
@@ -109,17 +132,22 @@ class GenerateListeners(unittest.TestCase):
             {
                 'host': '0.0.0.0',
                 'port': '5672',
-                'role': 'inter-router'},
+                'role': 'normal',
+                'authenticatePeer': 'no',
+                'saslMechanisms': 'ANONYMOUS'
+            },
             {
                 'host': '0.0.0.0',
                 'port': '5672',
-                'role': 'normal',
+                'role': 'inter-router',
                 'authenticatePeer': 'no',
                 'saslMechanisms': 'ANONYMOUS'
             }
         ]
 
-        generated = generate_listeners(self.graph, 'router4')
+        nbrdict = {'router1': {u'value': 1}, }
+
+        generated = generate_listeners(self.graph, 'router4', nbrdict, self.node_types)
         assert_equals(listener, generated)
 
 
@@ -374,20 +402,28 @@ class GenerateFullConfig(unittest.TestCase):
                     "router": [
                         {
                             "id": "router1",
-                            "mode": "standalone"
+                            "mode": "interior"
                         }
                     ],
                     "listener": [
                         {
-
                             "host": "0.0.0.0",
                             "port": "5672",
-                            "role": "inter-router"
+                            "role": "normal",
+                            "authenticatePeer": "no",
+                            "saslMechanisms": "ANONYMOUS"
                         },
                         {
                             "host": "0.0.0.0",
                             "port": "5672",
-                            "role": "normal",
+                            "role": "inter-router",
+                            "authenticatePeer": "no",
+                            "saslMechanisms": "ANONYMOUS"
+                        },
+                        {
+                            "host": "0.0.0.0",
+                            "port": "5672",
+                            "role": "route-container",
                             "authenticatePeer": "no",
                             "saslMechanisms": "ANONYMOUS"
                         }
@@ -425,20 +461,29 @@ class GenerateFullConfig(unittest.TestCase):
                     "router": [
                         {
                             "id": "router2",
-                            "mode": "standalone"
+                            "mode": "interior"
                         }
                     ],
                     "listener": [
                         {
                             "host": "0.0.0.0",
-                            "role": "inter-router",
-                            "port": "5672"
+                            "port": "5672",
+                            "role": "normal",
+                            "authenticatePeer": "no",
+                            "saslMechanisms": "ANONYMOUS"
                         },
                         {
                             "host": "0.0.0.0",
-                            "authenticatePeer": "no",
-                            "role": "normal",
                             "port": "5672",
+                            "role": "inter-router",
+                            "authenticatePeer": "no",
+                            "saslMechanisms": "ANONYMOUS"
+                        },
+                        {
+                            "host": "0.0.0.0",
+                            "port": "5672",
+                            "role": "route-container",
+                            "authenticatePeer": "no",
                             "saslMechanisms": "ANONYMOUS"
                         }
                     ],

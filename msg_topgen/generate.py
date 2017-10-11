@@ -25,9 +25,9 @@ def get_conf(graph):
         # init
         confs.setdefault(node, {})
         # Generate router info
-        confs[node].update(generate_router_info(graph, node))
+        confs[node].update(generate_router_info(graph, node, nbrdict, node_type))
         # Generate listeners
-        confs[node].update({'listener': generate_listeners(graph, node)})
+        confs[node].update({'listener': generate_listeners(graph, node, nbrdict, node_type)})
         # Generate connectors with link-routes
         connectors, link_routes = generate_connectors(graph, node, nbrdict, node_type)
         if connectors:
@@ -38,7 +38,7 @@ def get_conf(graph):
     return confs
 
 
-def generate_listeners(graph, node):
+def generate_listeners(graph, node, nbrdict, node_type):
     """
     Function for generate information about listeners.
     Generate default or self-defined values.
@@ -49,17 +49,11 @@ def generate_listeners(graph, node):
     list_vars = nx.get_node_attributes(graph, 'listener')
 
     listeners = []
+    neighbours = []
 
     if node in list_vars:
         listeners.append(list_vars[node])
     if node not in nx.get_node_attributes(graph, 'def_list') or listeners == []:
-        listeners.append(
-            {
-                'host': '0.0.0.0',
-                'port': DEFAULT_PORT,
-                'role': 'inter-router'
-            }
-        )
         listeners.append(
             {
                 'host': '0.0.0.0',
@@ -69,6 +63,31 @@ def generate_listeners(graph, node):
                 'saslMechanisms': 'ANONYMOUS'
             }
         )
+        for out in nbrdict.keys():
+            if node_type[out] == 'router':
+                listeners.append(
+                    {
+                        'host': '0.0.0.0',
+                        'port': DEFAULT_PORT,
+                        'role': 'inter-router',
+                        'authenticatePeer': 'no',
+                        'saslMechanisms': 'ANONYMOUS'
+                    }
+                )
+                break
+
+        for out in nbrdict.keys():
+            if node_type[out] == 'broker':
+                listeners.append(
+                    {
+                        'host': '0.0.0.0',
+                        'port': DEFAULT_PORT,
+                        'role': 'route-container',
+                        'authenticatePeer': 'no',
+                        'saslMechanisms': 'ANONYMOUS'
+                    }
+                )
+                break
 
     return listeners
 
@@ -143,7 +162,7 @@ def generate_connectors(graph, node, nbrdict, node_type):
     return connectors, link_route
 
 
-def generate_router_info(graph, node):
+def generate_router_info(graph, node, nbrdict, node_type):
     """
     Function for generate information about router itself.
     :param graph: networkx graph of topology
@@ -154,7 +173,15 @@ def generate_router_info(graph, node):
     rout_vars = nx.get_node_attributes(graph, 'mode')
     # @todo - problem ve vars pro ansible (jedna masina, jeden router - vymyslet a
     # @todo   vyzkouset moznosti pro vice routru na masine) a upravit dle toho generovani
-    mode = rout_vars[node] if node in rout_vars else 'standalone'
+    mode = 'standalone'
+
+    if node in rout_vars:
+        mode = rout_vars[node]
+    else:
+        for out in nbrdict.keys():
+            if node_type[out] == 'router' or node_type[out] == 'broker':
+                mode = 'interior'
+                break
 
     router_info = {
         'machine': node,
