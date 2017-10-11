@@ -22,8 +22,18 @@ setup(
     license='Apache 2.0',
     description='',
     setup_requires=['pytest-runner'],
-    tests_require=['pytest'],
-    install_requires=reqs,
+    tests_require=[
+        'pytest',
+        'nose'
+    ],
+    install_requires=[
+        'networkx==2.0',
+        'pyaml>=3.12',
+        'ansible==2.0',
+        'libracmp',
+        'matplotlib',
+        'argparse'
+    ],
     url='https://github.com/rh-messaging-qe/qpid_generator',
     author='Dominik Lenoch <dlenoch@redhat.com>, Jakub Stejskal <jstejska@redhat.com>',
     author_email='jstejska@redhat.com'

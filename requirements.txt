@@ -1,9 +1,0 @@
-pip
-networkx==2.0
-pyyaml>=3.12
-pytest
-nose
-ansible==2.0
-libracmp
-matplotlib
-argparse
