@@ -1,3 +1,0 @@
-[console_scripts]
-msg_topgen = msg_topgen.msg_topgen:main
-
