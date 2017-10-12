@@ -6,6 +6,7 @@ Package for generatate/load topology defined by graph/hosts. Also generate globa
 [![Build Status](https://travis-ci.org/rh-messaging-qe/iqa-topology-generator.svg?branch=master)](https://travis-ci.org/rh-messaging-qe/iqa-topology-generator)
 [![GitHub Issues](https://img.shields.io/github/issues/rh-messaging-qe/iqa-topology-generator.svg)](https://github.com/rh-messaging-qe/iqa-topology-generator/issues)
 [![GitHub Issues](https://img.shields.io/github/issues-pr/rh-messaging-qe/iqa-topology-generator.svg)](https://github.com/rh-messaging-qe/iqa-topology-generator/pulls)
+[![pypi](https://img.shields.io/pypi/v/msg_topgen.svg)](https://github.com/rh-messaging-qe/iqa-topology-generator)
 ![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
@@ -33,7 +34,7 @@ Default graph types values:
 | `bus_graph` | Routers are in line ad brokers are evenly distributed to routers |
 | `circle_graph` | Line_mix_graph with connected border nodes |
 
-You can see examples of config file in `config.yml` in root directory. Examples of graph file are in `tests/items`.
+You can see an examples of config file in `config.yml` in root directory. Examples of graph file are in `tests/items`.
 
 `--help` provide you more information.
 

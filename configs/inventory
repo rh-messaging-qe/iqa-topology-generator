@@ -1,21 +1,15 @@
-[group1]
-router1
+[clients]
+sender image="rhmessagingqe/sshd-service:centos7"
+receiver image="rhmessagingqe/sshd-service:centos6"
 
-[group2]
-router2
-router3
-
-[routers:children]
-group1
-group2
+[routers]
+router1 image="rhmessagingqe/sshd-service:centos7"
+router2 image="rhmessagingqe/sshd-service:centos6"
+router3 image="rhmessagingqe/sshd-service:centos6"
 
 [brokers]
-broker1
-broker2
-broker3
-broker4
-broker5
-broker6
 
-[clients]
-client1
+[nodes:children]
+brokers
+clients
+routers
