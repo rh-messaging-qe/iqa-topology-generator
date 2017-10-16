@@ -7,8 +7,6 @@ from arg_parser import Config
 from generate import get_conf
 from topology import Topology
 
-GEN_PATH = 'generated'
-
 
 def generate_output(config, generated, topology):
     """
@@ -19,10 +17,10 @@ def generate_output(config, generated, topology):
     """
     # output
     basename = "%s_R%s_B%s" % (config.graph_type, config.routers, config.brokers)
-    directory = os.path.join(GEN_PATH, basename)
+    directory = os.path.join(config.out_dir, basename)
     if not os.path.isdir(directory):
         os.makedirs(directory)
-    filename = os.path.join(directory, "confs.json")
+    filename = os.path.join(directory, "router_confs.json")
     # Export graph
     topology.export_graph(os.path.join(directory, "topology.svg"), basename, config.graph_type)
     # Export variables

@@ -29,6 +29,7 @@ class Config:
         self.brokers = 1
         self.router_names = []
         self.broker_names = []
+        self.out_dir = ""
 
     def args_parse(self):
         """
@@ -40,6 +41,8 @@ class Config:
 
         # parse arguments
         parser = argparse.ArgumentParser(description='Qpid-dispatch facts generator.')
+        parser.add_argument('-o', '--output-dir', action="store", dest="out_dir", help='Path to output dir',
+                            required=False)
         required = parser.add_argument_group('required arguments')
         required.add_argument('-c', '--config-file', action="store", dest="config_file", help='Path to config file',
                               required=True)
@@ -65,10 +68,11 @@ class Config:
         self.routers = len(self.router_names)
         self.brokers = len(self.broker_names)
         self.machines = self.routers + self.brokers
+        self.out_dir = results.out_dir if results.out_dir else "/tmp/generated/"
 
         if self.routers <= 0:
-            raise Exception("You're trying to create topology without router and this is useless.\nPlease check documentation on https://github.com/rh-messaging-qe/iqa-topology-generator .")
-
+            raise Exception(
+                "You're trying to create topology without router and this is useless.\nPlease check documentation on https://github.com/rh-messaging-qe/iqa-topology-generator .")
 
 
     def parse_inventory(self, filename):
