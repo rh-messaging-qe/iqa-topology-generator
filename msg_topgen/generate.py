@@ -44,6 +44,8 @@ def generate_listeners(graph, node, nbrdict, node_type):
     Generate default or self-defined values.
     :param graph: networkx graph of topology
     :param node: current processing node
+    :param nbrdict: list of neighbors
+    :param node_type: type of nodes
     :return: listeners variables in json
     """
     list_vars = nx.get_node_attributes(graph, 'listener')
@@ -115,7 +117,6 @@ def generate_connectors(graph, node, nbrdict, node_type):
     connectors = []
     link_route = []
 
-    # @TODO - reformat this (7 rows)
     if node in conn_vars:
         if node in link_vars:
             for confs in conn_vars[node]:
@@ -167,12 +168,12 @@ def generate_router_info(graph, node, nbrdict, node_type):
     Function for generate information about router itself.
     :param graph: networkx graph of topology
     :param node: current processing node
+    :param nbrdict: list of neighbors
+    :param node_type: type of nodes
     :return: router variables in json
     """
 
     rout_vars = nx.get_node_attributes(graph, 'mode')
-    # @todo - problem ve vars pro ansible (jedna masina, jeden router - vymyslet a
-    # @todo   vyzkouset moznosti pro vice routru na masine) a upravit dle toho generovani
     mode = 'standalone'
 
     if node in rout_vars:
@@ -194,3 +195,45 @@ def generate_router_info(graph, node, nbrdict, node_type):
     }
 
     return router_info
+
+
+def generate_addresses(graph, node, nbrdict, node_type):
+    """
+    Function for generate information about addresses.
+    Generate default or self-defined values.
+    :param graph: networkx graph of topology
+    :param node: current processing node
+    :param nbrdict: list of neighbors
+    :param node_type: type of nodes
+    :return: listeners variables in json
+    """
+    address_vars = nx.get_node_attributes(graph, 'address')
+
+    address = []
+    neighbours = []
+
+    if node in address_vars:
+        address.append(address_vars[node])
+    if node not in nx.get_node_attributes(graph, 'def_list') or address == []:
+        item = {'prefix': 'closest', 'distribution': 'closest'}
+
+        if item not in address:
+            address.append(item)
+
+        item = {'prefix': 'multicast', 'distribution': 'multicast'}
+        if item not in address:
+            address.append(item)
+
+        item = {'prefix': 'unicast', 'distribution': 'closest'}
+        if item not in address:
+            address.append(item)
+
+        item = {'prefix': 'exclusive', 'distribution': 'closest'}
+        if item not in address:
+            address.append(item)
+
+        item = {'prefix': 'broadcast', 'distribution': 'multicast'}
+        if item not in address:
+            address.append(item)
+
+    return address

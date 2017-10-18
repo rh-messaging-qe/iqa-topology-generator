@@ -3,7 +3,6 @@ from nose.tools import *
 import unittest
 import sys
 
-
 from msg_topgen.generate import *
 
 
@@ -57,7 +56,8 @@ class GenerateListeners(unittest.TestCase):
         cls.graph.add_node('router3', type='router', def_list='no')
         cls.graph.add_node('router4', type='router')
 
-        cls.node_types = {'router1': 'router', 'router2': 'router', 'router3': 'router', 'router4': 'router', 'broker1': 'broker'}
+        cls.node_types = {'router1': 'router', 'router2': 'router', 'router3': 'router', 'router4': 'router',
+                          'broker1': 'broker'}
 
     def test_generate_listeners_1(self):
         listener = [
@@ -375,6 +375,111 @@ class GenerateConnectors(unittest.TestCase):
 
         assert_equals(sorted(connector), sorted(gen_conn))
         assert_equals(sorted(link_routes), sorted(gen_link))
+
+
+class GenerateAddresses(unittest.TestCase):
+    @classmethod
+    def setup_class(cls):
+        cls.graph = nx.Graph()
+
+        cls.graph.add_node('router1', type='router', address={'prefix': 'closest', 'distribution': 'closest'}, def_list='no')
+        cls.graph.add_node('router2', type='router', address={'prefix': 'closest', 'distribution': 'closest'})
+        cls.graph.add_node('router3', type='router', def_list='no')
+        cls.graph.add_node('router4', type='router')
+
+        cls.node_types = {'router1': 'router', 'router2': 'router', 'router3': 'router', 'router4': 'router'}
+
+    def test_generate_listeners_1(self):
+        address = [
+            {
+                'prefix': 'closest',
+                'distribution': 'closest'
+            }
+        ]
+
+        generated = generate_addresses(self.graph, 'router1', {}, self.node_types)
+        assert_equals(address, generated)
+
+    def test_generate_listeners_2(self):
+        address = [
+            {
+                'prefix': 'closest',
+                'distribution': 'closest'
+            },
+            {
+                'prefix': 'multicast',
+                'distribution': 'multicast'
+            },
+            {
+                'prefix': 'unicast',
+                'distribution': 'closest'
+            },
+            {
+                'prefix': 'exclusive',
+                'distribution': 'closest'
+            },
+            {
+                'prefix': 'broadcast',
+                'distribution': 'multicast'
+            }
+        ]
+
+        generated = generate_addresses(self.graph, 'router2', {}, self.node_types)
+        assert_equals(address, generated)
+
+    def test_generate_listeners_3(self):
+        address = [
+            {
+                'prefix': 'closest',
+                'distribution': 'closest'
+            },
+            {
+                'prefix': 'multicast',
+                'distribution': 'multicast'
+            },
+            {
+                'prefix': 'unicast',
+                'distribution': 'closest'
+            },
+            {
+                'prefix': 'exclusive',
+                'distribution': 'closest'
+            },
+            {
+                'prefix': 'broadcast',
+                'distribution': 'multicast'
+            }
+        ]
+
+        generated = generate_addresses(self.graph, 'router3', {}, self.node_types)
+        assert_equals(address, generated)
+
+    def test_generate_listeners_4(self):
+        address = [
+            {
+                'prefix': 'closest',
+                'distribution': 'closest'
+            },
+            {
+                'prefix': 'multicast',
+                'distribution': 'multicast'
+            },
+            {
+                'prefix': 'unicast',
+                'distribution': 'closest'
+            },
+            {
+                'prefix': 'exclusive',
+                'distribution': 'closest'
+            },
+            {
+                'prefix': 'broadcast',
+                'distribution': 'multicast'
+            }
+        ]
+
+        generated = generate_addresses(self.graph, 'router4', {}, self.node_types)
+        assert_equals(address, generated)
 
 
 class GenerateFullConfig(unittest.TestCase):
