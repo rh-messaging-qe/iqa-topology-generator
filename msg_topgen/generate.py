@@ -3,8 +3,9 @@
 
 import networkx as nx
 
-# Default port-value for  listeners/connectors
-DEFAULT_PORT = '5672'
+# Default start port-value for  listeners/connectors
+# ATTENTION: be sure that ports [5672 - 5672+router_count] are free to use!
+DEFAULT_PORT = 5672
 # Default queue name for linkRoutes
 DEFAULT_QUEUE = 'default_queue'
 
@@ -28,6 +29,13 @@ def get_conf(graph):
         confs[node].update(generate_router_info(graph, node, nbrdict, node_type))
         # Generate listeners
         confs[node].update({'listener': generate_listeners(graph, node, nbrdict, node_type)})
+        # Generate addresses
+        confs[node].update({'address': generate_addresses(graph, node, nbrdict, node_type)})
+
+    # Generate connectors according of listeners
+    for node, nbrdict in graph.adjacency():
+        if node_type[node] == 'broker':
+            continue
         # Generate connectors with link-routes
         connectors, link_routes = generate_connectors(graph, node, nbrdict, node_type)
         if connectors:
@@ -53,29 +61,33 @@ def generate_listeners(graph, node, nbrdict, node_type):
     listeners = []
     neighbours = []
 
+    port = DEFAULT_PORT
+
     if node in list_vars:
         listeners.append(list_vars[node])
     if node not in nx.get_node_attributes(graph, 'def_list') or listeners == []:
         listeners.append(
             {
                 'host': '0.0.0.0',
-                'port': DEFAULT_PORT,
+                'port': str(port),
                 'role': 'normal',
                 'authenticatePeer': 'no',
                 'saslMechanisms': 'ANONYMOUS'
             }
         )
+        port += 1
         for out in nbrdict.keys():
             if node_type[out] == 'router':
                 listeners.append(
                     {
                         'host': '0.0.0.0',
-                        'port': DEFAULT_PORT,
+                        'port': str(port),
                         'role': 'inter-router',
                         'authenticatePeer': 'no',
                         'saslMechanisms': 'ANONYMOUS'
                     }
                 )
+                port += 1
                 break
 
         for out in nbrdict.keys():
@@ -83,18 +95,22 @@ def generate_listeners(graph, node, nbrdict, node_type):
                 listeners.append(
                     {
                         'host': '0.0.0.0',
-                        'port': DEFAULT_PORT,
+                        'port': str(port),
                         'role': 'route-container',
                         'authenticatePeer': 'no',
                         'saslMechanisms': 'ANONYMOUS'
                     }
                 )
+                port += 1
                 break
+
+    # nx.set_node_attributes(graph, 'listener', 'test' )
+
+    graph.add_node(node, listener=listeners)
 
     return listeners
 
 
-# @TODO for two routers should be same connectors
 def generate_connectors(graph, node, nbrdict, node_type):
     """
     Function for generate connectors.
@@ -139,26 +155,29 @@ def generate_connectors(graph, node, nbrdict, node_type):
                 connectors.append({
                     'name': out,
                     'host': out,
-                    'port': DEFAULT_PORT,  # same rule as above
+                    'port': get_neighbor_port(graph, out),  # same rule as above
                     'role': 'inter-router'
                 })
             elif node_type[out] == 'broker':
                 connectors.append({
                     'name': out,
                     'host': out,
-                    'port': DEFAULT_PORT,  # same rule as above
+                    'port': str(DEFAULT_PORT),  # same rule as above
                     'role': 'route-container'
                 })
                 link_route.append({
-                    'prefix': DEFAULT_QUEUE,
+                    'prefix': node+'_queue',
                     'connection': out,
                     'dir': 'in'
                 })
                 link_route.append({
-                    'prefix': DEFAULT_QUEUE,
+                    'prefix': node+'_queue',
                     'connection': out,
                     'dir': 'out'
                 })
+
+    graph.add_node(node, connectors=connectors)
+    graph.add_node(node, linkRoutes=link_route)
 
     return connectors, link_route
 
@@ -193,6 +212,8 @@ def generate_router_info(graph, node, nbrdict, node_type):
             }
         ]
     }
+
+    graph.add_node(node, router=router_info)
 
     return router_info
 
@@ -236,4 +257,19 @@ def generate_addresses(graph, node, nbrdict, node_type):
         if item not in address:
             address.append(item)
 
+    graph.add_node(node, addresses=address)
     return address
+
+
+def get_neighbor_port(graph, neighbor):
+    """
+    Function for get port for connector according neighbor listener port.
+    :param graph: graph
+    :param neighbor: neightbor name
+    :return: port number
+    """
+    test = graph.nodes(data=True)[neighbor]
+    if 'listener' in test:
+        for item in test['listener']:
+            if 'inter-route' in item['role']:
+                return item['port']

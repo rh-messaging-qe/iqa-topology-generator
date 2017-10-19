@@ -7,7 +7,7 @@ from setuptools import setup
 
 setup(
     name='msg_topgen',
-    version='0.1.6',
+    version='0.1.7',
     packages=['msg_topgen'],
     entry_points={
         "console_scripts": ['msg_topgen = msg_topgen.msg_topgen:main']

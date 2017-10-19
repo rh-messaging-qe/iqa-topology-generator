@@ -5,7 +5,7 @@ receiver image="rhmessagingqe/sshd-service:centos6"
 [routers]
 router1 image="rhmessagingqe/sshd-service:centos7"
 router2 image="rhmessagingqe/sshd-service:centos6"
-router3 image="rhmessagingqe/sshd-service:centos6"
+
 
 [brokers]
 

@@ -85,7 +85,7 @@ class GenerateListeners(unittest.TestCase):
             },
             {
                 'host': '0.0.0.0',
-                'port': '5672',
+                'port': '5673',
                 'role': 'inter-router',
                 'authenticatePeer': 'no',
                 'saslMechanisms': 'ANONYMOUS'
@@ -108,14 +108,14 @@ class GenerateListeners(unittest.TestCase):
             },
             {
                 'host': '0.0.0.0',
-                'port': '5672',
+                'port': '5673',
                 'role': 'inter-router',
                 'authenticatePeer': 'no',
                 'saslMechanisms': 'ANONYMOUS'
             },
             {
                 'host': '0.0.0.0',
-                'port': '5672',
+                'port': '5674',
                 'role': 'route-container',
                 'authenticatePeer': 'no',
                 'saslMechanisms': 'ANONYMOUS'
@@ -138,7 +138,7 @@ class GenerateListeners(unittest.TestCase):
             },
             {
                 'host': '0.0.0.0',
-                'port': '5672',
+                'port': '5673',
                 'role': 'inter-router',
                 'authenticatePeer': 'no',
                 'saslMechanisms': 'ANONYMOUS'
@@ -158,11 +158,16 @@ class GenerateConnectors(unittest.TestCase):
 
         cls.graph.add_node('router1', type='router',
                            connector=[{'host': 'router2', 'port': '5672'}, {'host': 'router3', 'port': '5672'}],
+                           listener=[{'host': 'router1', 'port': '5672', 'role': 'inter-router'}],
                            def_conn='no')
         cls.graph.add_node('router2', type='router',
-                           connector=[{'host': 'router1', 'port': '5672'}, {'host': 'router3', 'port': '5672'}])
-        cls.graph.add_node('router3', type='router', connector={'host': 'router2', 'port': '5672'})
-        cls.graph.add_node('router4', type='router', def_conn='no')
+                           connector=[{'host': 'router1', 'port': '5672'}, {'host': 'router3', 'port': '5672'}],
+                           listener=[{'host': 'router1', 'port': '5672', 'role':'inter-router'}])
+        cls.graph.add_node('router3', type='router',
+                           connector={'host': 'router2', 'port': '5672'},
+                           listener=[{'host': 'router1', 'port': '5672', 'role':'inter-router'}])
+        cls.graph.add_node('router4', type='router', def_conn='no',
+                           listener=[{'host': 'router1', 'port': '5675', 'role': 'inter-router'}])
         cls.graph.add_node('router5', type='router')
         cls.graph.add_node('router6', type='router', connector=[
             {'name': 'broker1', 'host': 'broker1', 'port': '5672', 'role': 'route-container'}, ],
@@ -193,7 +198,6 @@ class GenerateConnectors(unittest.TestCase):
         assert_equals((connector, link_routes), generated)
 
     def test_generate_connector_2(self):
-        # @TODO connector config without role inter-router (don't know how router will react on it)
         connector = [
             {
                 'host': 'router1',
@@ -278,7 +282,7 @@ class GenerateConnectors(unittest.TestCase):
             {
                 'name': 'router4',
                 'host': 'router4',
-                'port': '5672',
+                'port': '5675',
                 'role': 'inter-router'
             },
             {
@@ -324,12 +328,12 @@ class GenerateConnectors(unittest.TestCase):
 
         link_routes = [
             {
-                'prefix': 'default_queue',
+                'prefix': 'router5_queue',
                 'connection': 'broker1',
                 'dir': 'in'
             },
             {
-                'prefix': 'default_queue',
+                'prefix': 'router5_queue',
                 'connection': 'broker1',
                 'dir': 'out'
             }
@@ -520,14 +524,14 @@ class GenerateFullConfig(unittest.TestCase):
                         },
                         {
                             "host": "0.0.0.0",
-                            "port": "5672",
+                            "port": "5673",
                             "role": "inter-router",
                             "authenticatePeer": "no",
                             "saslMechanisms": "ANONYMOUS"
                         },
                         {
                             "host": "0.0.0.0",
-                            "port": "5672",
+                            "port": "5674",
                             "role": "route-container",
                             "authenticatePeer": "no",
                             "saslMechanisms": "ANONYMOUS"
@@ -543,18 +547,18 @@ class GenerateFullConfig(unittest.TestCase):
                         {
                             "name": "router2",
                             "host": "router2",
-                            "port": '5672',
+                            "port": '5673',
                             "role": "inter-router"
                         }
                     ],
                     "linkRoute": [
                         {
-                            "prefix": "default_queue",
+                            "prefix": "router1_queue",
                             "connection": "broker1",
                             "dir": "in"
                         },
                         {
-                            "prefix": "default_queue",
+                            "prefix": "router1_queue",
                             "connection": "broker1",
                             "dir": "out"
                         }
@@ -579,14 +583,14 @@ class GenerateFullConfig(unittest.TestCase):
                         },
                         {
                             "host": "0.0.0.0",
-                            "port": "5672",
+                            "port": "5673",
                             "role": "inter-router",
                             "authenticatePeer": "no",
                             "saslMechanisms": "ANONYMOUS"
                         },
                         {
                             "host": "0.0.0.0",
-                            "port": "5672",
+                            "port": "5674",
                             "role": "route-container",
                             "authenticatePeer": "no",
                             "saslMechanisms": "ANONYMOUS"
@@ -597,7 +601,7 @@ class GenerateFullConfig(unittest.TestCase):
                             "name": "router1",
                             "host": "router1",
                             "role": "inter-router",
-                            "port": "5672"
+                            "port": "5673"
                         },
                         {
                             "name": "broker2",
@@ -614,22 +618,22 @@ class GenerateFullConfig(unittest.TestCase):
                     ],
                     "linkRoute": [
                         {
-                            "prefix": "default_queue",
+                            "prefix": "router2_queue",
                             "connection": "broker2",
                             "dir": "in"
                         },
                         {
-                            "prefix": "default_queue",
+                            "prefix": "router2_queue",
                             "connection": "broker2",
                             "dir": "out"
                         },
                         {
-                            "prefix": "default_queue",
+                            "prefix": "router2_queue",
                             "connection": "broker3",
                             "dir": "in"
                         },
                         {
-                            "prefix": "default_queue",
+                            "prefix": "router2_queue",
                             "connection": "broker3",
                             "dir": "out"
                         }
