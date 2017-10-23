@@ -3,11 +3,118 @@
 
 
 import argparse
+import shlex
+import sys
 
 import yaml
-from ansible.inventory import Inventory
-from ansible.parsing.dataloader import DataLoader
-from ansible.vars import VariableManager
+
+
+# @TODO - create package from this function
+def parse_inventory(filename):
+    """
+    Function for parse inventory file for ansible into JSON format.
+    :param filename: path to inventory file
+    :return: JSON struct with parsed inventory
+    """
+    data = {}
+    group = None
+    state = None
+
+    try:
+        inventory = open(filename)
+    except Exception as e:
+        msg('E', 'Cannot open inventory file %s. %s' % (filename, str(e)))
+
+    # Walk through the file and build the data structure
+    for line in inventory:
+        line = line.strip()
+
+        # Skip comments and blank lines
+        if line.startswith('#') or line.startswith(';') or len(line) == 0:
+            continue
+
+        if line.startswith('['):
+            # Get group name
+            section = line[1:-1]
+
+            # Parse subsection
+            if ':' in line:
+                group, state = line[1:-1].split(':')
+            else:
+                group = section
+                state = 'hosts'
+
+            if group not in data:
+                data[group] = {}
+
+            if state not in data[group]:
+                if 'children' not in state:
+                    data[group][state] = {}
+                else:
+                    data[group][state] = []
+        else:
+            # Parse hosts or group members/vars
+            try:
+                tokens = shlex.split(line, comments=True)
+            except ValueError as e:
+                msg('E', "Error parsing host definition '%s': %s" % (line, e))
+
+            # Create 'all' group if no group was defined yet
+            if group is None:
+                group = 'all'
+                state = 'hosts'
+                data['all'] = {
+                    'hosts': []
+                }
+
+            # Get parsed hostname
+            hostname = tokens[0]
+
+            # Parse variables
+            variables = []
+            if state == 'hosts':
+                variables = tokens[1:]
+            elif state == 'vars':
+                variables = tokens
+
+            if 'hosts' in state:
+                data[group][state].update({hostname: {}})
+
+            if 'children' in state:
+                data[group][state].append(hostname)
+
+            for var in variables:
+                if '=' not in var:
+                    msg(
+                        'E',
+                        "Expected key=value host variable assignment, "
+                        "got: %s" % var)
+
+                (key, val) = var.split('=', 1)
+
+                if 'hosts' in state:
+                    data[group][state][hostname].update({key: val})
+                if 'vars' in state:
+                    data[group][state].update({key: val})
+    # Close file
+    try:
+        inventory.close()
+    except IOError as e:
+        msg('E', 'Cannot close inventory file %s. %s' % (filename, str(e)))
+
+    return data
+
+
+def msg(_type, text, exit=0):
+    """
+    Function for report exception error.
+    :param _type: exception
+    :param text: exit text
+    :param exit: exit number
+    :return:
+    """
+    sys.stderr.write("%s: %s\n" % (_type, text))
+    sys.exit(exit)
 
 
 class Config:
@@ -64,7 +171,7 @@ class Config:
             except yaml.YAMLError as exc:
                 print(exc)
 
-        self.parse_inventory(self.path_inventory)
+        self.get_hosts(self.path_inventory)
         self.routers = len(self.router_names)
         self.brokers = len(self.broker_names)
         self.machines = self.routers + self.brokers
@@ -74,8 +181,7 @@ class Config:
             raise Exception(
                 "You're trying to create topology without router and this is useless.\nPlease check documentation on https://github.com/rh-messaging-qe/iqa-topology-generator .")
 
-
-    def parse_inventory(self, filename):
+    def get_hosts(self, filename):
         """
         Method for parsing inventory with hosts.
         It's able to parse any amount of groups.
@@ -91,7 +197,7 @@ class Config:
 
                 [group2]
                 router2
-               router3
+                router3
 
         Same for example is for brokers.
         Using Python API 2.0 for parse inventory.
@@ -99,19 +205,9 @@ class Config:
         :return: self
         """
 
-        variable_manager = VariableManager()
-        loader = DataLoader()
+        data = parse_inventory(filename)
 
-        # Ansible: Load inventory
-        inventory = Inventory(
-            loader=loader,
-            variable_manager=variable_manager,
-            host_list=filename,  # Substitute your filename here
-        )
-
-        for host in inventory.get_hosts():
-            groups_of_hosts = map(str, inventory.groups_for_host(str(host)))
-            if 'routers' in groups_of_hosts:
-                self.router_names.append(str(host))
-            elif 'brokers' in groups_of_hosts:
-                self.broker_names.append(str(host))
+        for host in data['routers']['hosts']:
+            self.router_names.append(str(host))
+        for host in data['brokers']['hosts']:
+            self.router_names.append(str(host))

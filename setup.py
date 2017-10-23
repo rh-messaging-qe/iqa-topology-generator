@@ -7,7 +7,7 @@ from setuptools import setup
 
 setup(
     name='msg_topgen',
-    version='0.1.7',
+    version='0.1.8',
     packages=['msg_topgen'],
     entry_points={
         "console_scripts": ['msg_topgen = msg_topgen.msg_topgen:main']
@@ -22,7 +22,7 @@ setup(
     install_requires=[
         'networkx==2.0',
         'pyaml>=3.12',
-        'ansible==2.0',
+        'ansible>=2.3.2.0',
         'libracmp',
         'matplotlib',
         'argparse'
