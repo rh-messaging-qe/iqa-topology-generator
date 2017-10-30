@@ -210,4 +210,4 @@ class Config:
         for host in data['routers']['hosts']:
             self.router_names.append(str(host))
         for host in data['brokers']['hosts']:
-            self.router_names.append(str(host))
+            self.broker_names.append(str(host))
