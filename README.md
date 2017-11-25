@@ -65,3 +65,5 @@ Apache 2.0
 
 ## Author Information
 Messaging QE team @ redhat.com
+
+Matthieu Simonin [(msimonin/qpid-dispatch-generator)](https://github.com/msimonin/qpid-dispatch-generator)
