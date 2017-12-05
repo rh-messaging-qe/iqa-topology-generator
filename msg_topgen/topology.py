@@ -123,13 +123,13 @@ class Topology:
         last_b = len(brokers)
         last_r = len(routers) - 1
 
-        for x in xrange(start_idx, last_r):
+        for x in range(start_idx, last_r):
             graph.add_edge(routers[x], routers[x + 1])
 
-        for x in xrange(start_idx, last_b / 2 - 1):
+        for x in range(start_idx, last_b / 2 - 1):
             graph.add_edge(brokers[x], brokers[x + 1])
 
-        for x in xrange(last_b - 1, last_b / 2, -1):
+        for x in range(last_b - 1, last_b / 2, -1):
             graph.add_edge(brokers[x], brokers[x - 1])
 
         if brokers and routers:
@@ -155,20 +155,20 @@ class Topology:
         # @TODO add broker/routers better (2R1B2R1B...)
         if len_b > len_r:
             multiplier = len_b / len_r + 1
-            for x in xrange(1, len(brokers) + len(routers) + 1):
+            for x in range(1, len(brokers) + len(routers) + 1):
                 if x % multiplier == 0 and routers:
                     nodes.append(routers.pop())
                 else:
                     nodes.append(brokers.pop())
         else:
             multiplier = len_r / len_b + 1
-            for x in xrange(1, len(brokers) + len(routers) + 1):
+            for x in range(1, len(brokers) + len(routers) + 1):
                 if x % multiplier == 0 and brokers:
                     nodes.append(brokers.pop())
                 else:
                     nodes.append(routers.pop())
 
-        for x in xrange(0, len(nodes) - 1):
+        for x in range(0, len(nodes) - 1):
             graph.add_edge(nodes[x], nodes[x + 1])
 
         if complete:
@@ -199,10 +199,10 @@ class Topology:
         last_b = len(brokers) - 1
         last_r = len(routers) - 1
 
-        for x in xrange(start_idx, last_r):
+        for x in range(start_idx, last_r):
             graph.add_edge(routers[x], routers[x + 1])
 
-        for x in xrange(start_idx, len(brokers)):
+        for x in range(start_idx, len(brokers)):
             if last_b <= last_r:
                 graph.add_edge(brokers[x], routers[x])
             else:

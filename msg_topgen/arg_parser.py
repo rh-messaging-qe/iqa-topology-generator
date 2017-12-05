@@ -161,13 +161,13 @@ class Config:
                 if 'hostfile' in config:
                     self.path_inventory = config['hostfile']
                 else:
-                    self.path_inventory = raw_input("Enter path to inventory: ")
+                    self.path_inventory = input("Enter path to inventory: ")
                 if 'graph_file' in config:
                     self.graph_file = config['graph_file']
                 elif 'graph_type' in config:
                     self.graph_type = config['graph_type']
                 else:
-                    self.graph_type = raw_input("Enter graph type for generator: ")
+                    self.graph_type = input("Enter graph type for generator: ")
             except yaml.YAMLError as exc:
                 print(exc)
 
