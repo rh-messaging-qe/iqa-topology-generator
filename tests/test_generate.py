@@ -51,8 +51,8 @@ class GenerateListeners(unittest.TestCase):
     def setup_class(cls):
         cls.graph = nx.Graph()
 
-        cls.graph.add_node('router1', type='router', listener={'host': '1.1.1.1', 'port': '666'}, def_list='no')
-        cls.graph.add_node('router2', type='router', listener={'host': '0.0.0.0', 'port': '777'})
+        cls.graph.add_node('router1', type='router', listener=[{'host': '1.1.1.1', 'port': '666'}], def_list='no')
+        cls.graph.add_node('router2', type='router', listener=[{'host': '0.0.0.0', 'port': '777'}])
         cls.graph.add_node('router3', type='router', def_list='no')
         cls.graph.add_node('router4', type='router')
 
@@ -393,7 +393,7 @@ class GenerateAddresses(unittest.TestCase):
 
         cls.node_types = {'router1': 'router', 'router2': 'router', 'router3': 'router', 'router4': 'router'}
 
-    def test_generate_listeners_1(self):
+    def test_generate_addresses_1(self):
         address = [
             {
                 'prefix': 'closest',
@@ -404,7 +404,7 @@ class GenerateAddresses(unittest.TestCase):
         generated = generate_addresses(self.graph, 'router1', {}, self.node_types)
         assert_equals(address, generated)
 
-    def test_generate_listeners_2(self):
+    def test_generate_addresses_2(self):
         address = [
             {
                 'prefix': 'closest',
@@ -431,7 +431,7 @@ class GenerateAddresses(unittest.TestCase):
         generated = generate_addresses(self.graph, 'router2', {}, self.node_types)
         assert_equals(address, generated)
 
-    def test_generate_listeners_3(self):
+    def test_generate_addresses_3(self):
         address = [
             {
                 'prefix': 'closest',
@@ -458,7 +458,7 @@ class GenerateAddresses(unittest.TestCase):
         generated = generate_addresses(self.graph, 'router3', {}, self.node_types)
         assert_equals(address, generated)
 
-    def test_generate_listeners_4(self):
+    def test_generate_addresses_4(self):
         address = [
             {
                 'prefix': 'closest',

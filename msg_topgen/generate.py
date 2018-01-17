@@ -64,7 +64,10 @@ def generate_listeners(graph, node, nbrdict, node_type):
     port = DEFAULT_PORT
 
     if node in list_vars:
-        listeners.append(list_vars[node])
+        if isinstance(list_vars[node], list):
+            listeners = list_vars[node]
+        else:
+            listeners = [list_vars[node]]
     if node not in nx.get_node_attributes(graph, 'def_list') or listeners == []:
         listeners.append(
             {
@@ -143,10 +146,7 @@ def generate_connectors(graph, node, nbrdict, node_type):
                             connectors = conn_vars[node]
 
         if not connectors:
-            if isinstance(conn_vars[node], list):
-                connectors = conn_vars[node]
-            else:
-                connectors = [conn_vars[node]]
+            connectors = append_defined_component(conn_vars, node)
 
     if node not in nx.get_node_attributes(graph, 'def_conn'):
         # outgoing
@@ -166,12 +166,12 @@ def generate_connectors(graph, node, nbrdict, node_type):
                     'role': 'route-container'
                 })
                 link_route.append({
-                    'prefix': node+'_queue',
+                    'prefix': node + '_queue',
                     'connection': out,
                     'dir': 'in'
                 })
                 link_route.append({
-                    'prefix': node+'_queue',
+                    'prefix': node + '_queue',
                     'connection': out,
                     'dir': 'out'
                 })
@@ -234,7 +234,7 @@ def generate_addresses(graph, node, nbrdict, node_type):
     neighbours = []
 
     if node in address_vars:
-        address.append(address_vars[node])
+        address = append_defined_component(address_vars, node)
     if node not in nx.get_node_attributes(graph, 'def_list') or address == []:
         item = {'prefix': 'closest', 'distribution': 'closest'}
 
@@ -265,7 +265,7 @@ def get_neighbor_port(graph, neighbor):
     """
     Function for get port for connector according neighbor listener port.
     :param graph: graph
-    :param neighbor: neightbor name
+    :param neighbor: neighbor name
     :return: port number
     """
     test = graph.nodes(data=True)[neighbor]
@@ -273,3 +273,16 @@ def get_neighbor_port(graph, neighbor):
         for item in test['listener']:
             if 'inter-route' in item['role']:
                 return item['port']
+
+
+def append_defined_component(component, node):
+    """
+    Function for append components defined by user from graph metadata.
+    :param component: component list
+    :param node: node name
+    :return: list specific components for specific node
+    """
+    if isinstance(component[node], list):
+        return component[node]
+    else:
+        return [component[node]]
