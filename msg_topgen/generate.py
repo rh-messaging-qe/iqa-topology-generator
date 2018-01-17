@@ -235,7 +235,7 @@ def generate_addresses(graph, node, nbrdict, node_type):
 
     if node in address_vars:
         address = append_defined_component(address_vars, node)
-    if node not in nx.get_node_attributes(graph, 'def_list') or address == []:
+    if node not in nx.get_node_attributes(graph, 'def_addr') or address == []:
         item = {'prefix': 'closest', 'distribution': 'closest'}
 
         if item not in address:

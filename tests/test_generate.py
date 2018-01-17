@@ -386,7 +386,7 @@ class GenerateAddresses(unittest.TestCase):
     def setup_class(cls):
         cls.graph = nx.Graph()
 
-        cls.graph.add_node('router1', type='router', address={'prefix': 'closest', 'distribution': 'closest'}, def_list='no')
+        cls.graph.add_node('router1', type='router', address={'prefix': 'closest', 'distribution': 'closest'}, def_addr='no')
         cls.graph.add_node('router2', type='router', address={'prefix': 'closest', 'distribution': 'closest'})
         cls.graph.add_node('router3', type='router', def_list='no')
         cls.graph.add_node('router4', type='router')
