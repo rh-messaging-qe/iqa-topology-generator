@@ -6,10 +6,14 @@ nodes:
   id: router2
   def_list: no
   def_conn: no
+  router:
+    - mode: interior
+      allowUnsettledMulticast: yes
   listener:
     - host: 1.1.1.1
       port: 666
       sslprofile: franta
+      role: normal
   connector:
     - host: router2
       port: 111

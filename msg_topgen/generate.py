@@ -191,25 +191,27 @@ def generate_router_info(graph, node, nbrdict, node_type):
     :param node_type: type of nodes
     :return: router variables in json
     """
-
-    rout_vars = nx.get_node_attributes(graph, 'mode')
+    router = {}
     mode = 'standalone'
+    rout_vars = nx.get_node_attributes(graph, 'router')
 
     if node in rout_vars:
-        mode = rout_vars[node]
+        router = rout_vars[node][0]
     else:
         for out in nbrdict.keys():
             if node_type[out] == 'router' or node_type[out] == 'broker':
                 mode = 'interior'
                 break
+        router['mode'] = mode
 
+    # Add router ID
+    router['id'] = node
+
+    # Create complete router info
     router_info = {
         'machine': node,
         'router': [
-            {
-                'id': node,
-                'mode': mode
-            }
+            router
         ]
     }
 
@@ -269,10 +271,20 @@ def get_neighbor_port(graph, neighbor):
     :return: port number
     """
     test = graph.nodes(data=True)[neighbor]
-    if 'listener' in test:
-        for item in test['listener']:
-            if 'inter-route' in item['role']:
-                return item['port']
+
+    try:
+        if 'listener' in test:
+            for item in test['listener']:
+
+                if 'role' in item:
+
+                    if 'inter-route' in item['role']:
+                        return item['port']
+
+                else:
+                    raise AttributeError
+    except AttributeError:
+        raise AttributeError("Listener doesn't contains role!")
 
 
 def append_defined_component(component, node):
@@ -286,3 +298,4 @@ def append_defined_component(component, node):
         return component[node]
     else:
         return [component[node]]
+

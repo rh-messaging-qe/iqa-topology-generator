@@ -11,7 +11,7 @@ class GenerateRouterInfo(unittest.TestCase):
     def setup_class(cls):
         cls.graph = nx.Graph()
 
-        cls.graph.add_node('router1', type='router', mode='standalone')
+        cls.graph.add_node('router1', type='router', router=[{'mode': 'standalone'}])
         cls.graph.add_node('router2', type='router')
 
         cls.nbrdict = {'router1': {u'value': 1}, 'router2': {u'value': 1}}
