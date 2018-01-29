@@ -486,6 +486,64 @@ class GenerateAddresses(unittest.TestCase):
         assert_equals(address, generated)
 
 
+class GenerateConnectionInfo(unittest.TestCase):
+    @classmethod
+    def setup_class(cls):
+        cls.graph = nx.Graph()
+
+        cls.graph.add_node('router1', type='router', router=[{'mode': 'standalone'}],
+                           sslProfile=[{'name': 'Test', 'ciphers': 'AES-256', 'keyFile': 'file'}])
+        cls.graph.add_node('router2', type='router', router=[{'mode': 'standalone'}],
+                           sslProfile=[{'name': 'Test', 'ciphers': 'AES-256', 'keyFile': 'file'}],
+                           autoLink=[{'addr': 'queue', 'connection': 'BROKER', 'dir': 'out'}])
+        cls.graph.add_node('router3', type='router')
+
+        cls.nbrdict = {'router1': {u'value': 1}, 'router2': {u'value': 1}}
+        cls.node_types = {'router1': 'router', 'router2': 'router', }
+
+    def test_generate_conn_1(self):
+        conn_settings = {
+            'sslProfile': [
+                {
+                    'name': 'Test',
+                    'ciphers': 'AES-256',
+                    'keyFile': 'file'
+                }
+            ]
+        }
+
+        generated = generate_connection_settings(self.graph, 'router1')
+        assert_equals(conn_settings, generated)
+
+    def test_generate_conn_2(self):
+        conn_settings = {
+            'sslProfile': [
+                {
+                    'name': 'Test',
+                    'ciphers': 'AES-256',
+                    'keyFile': 'file'
+                }
+            ],
+            'autoLink': [
+                {
+                    'addr': 'queue',
+                    'connection': 'BROKER',
+                    'dir': 'out'
+                }
+            ]
+        }
+
+        generated = generate_connection_settings(self.graph, 'router2')
+        assert_equals(conn_settings, generated)
+
+    def test_generate_conn_3(self):
+        conn_settings = {}
+
+        generated = generate_connection_settings(self.graph, 'router3')
+        assert_equals(conn_settings, generated)
+
+
+
 class GenerateFullConfig(unittest.TestCase):
     @classmethod
     def setup_class(cls):

@@ -12,7 +12,7 @@ nodes:
   listener:
     - host: 1.1.1.1
       port: 666
-      sslprofile: franta
+      sslprofile: Test
       role: normal
   connector:
     - host: router2
@@ -26,6 +26,10 @@ nodes:
     - prefix: anycast
       connection: router3
       dir: out
+  sslProfile:
+    - name: Test
+      ciphers: AES-256
+      password: pass
 - type: router
   id: router1
   mode: inter-router
