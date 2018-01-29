@@ -31,6 +31,8 @@ def get_conf(graph):
         confs[node].update({'listener': generate_listeners(graph, node, nbrdict, node_type)})
         # Generate addresses
         confs[node].update({'address': generate_addresses(graph, node, nbrdict, node_type)})
+        # Generate sslProfile and other connection settings
+        confs[node].update(generate_connection_settings(graph, node))
 
     # Generate connectors according of listeners
     for node, nbrdict in graph.adjacency():
@@ -263,6 +265,31 @@ def generate_addresses(graph, node, nbrdict, node_type):
     return address
 
 
+def generate_connection_settings(graph, node):
+    """
+    Function for parse other dispatch options such as sslProfile, etc.
+    :param graph: networkx graph of topology
+    :param node: current processing node
+    :return:
+    """
+    conn_sett = {}
+    component_sett = {}
+    node_attributes = graph.node[node]
+    if isinstance(node_attributes, dict):
+        for component, attributes in node_attributes.items():
+            if isinstance(attributes, list) and attributes \
+                    and component not in ['listener', 'address', 'connector',
+                                          'linkRoute',
+                                          'router']:
+                for attr_name, attr_value in attributes[0].items():
+                    component_sett[attr_name] = attr_value
+
+                conn_sett[component] = [component_sett]
+                component_sett = {}
+
+    return conn_sett
+
+
 def get_neighbor_port(graph, neighbor):
     """
     Function for get port for connector according neighbor listener port.
@@ -298,4 +325,3 @@ def append_defined_component(component, node):
         return component[node]
     else:
         return [component[node]]
-
